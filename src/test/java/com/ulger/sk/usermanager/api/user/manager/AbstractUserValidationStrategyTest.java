@@ -20,7 +20,7 @@ public class AbstractUserValidationStrategyTest {
     @BeforeEach
     void setUp() {
         this.emailValidator = EmailValidator.getInstance();
-        this.passwordPolicyManager = new PasswordPolicyManagerImpl();
+        this.passwordPolicyManager = new DefaultPasswordPolicyManager();
         this.validationStrategy = new MockUserValidationStrategy(emailValidator, passwordPolicyManager);
     }
 

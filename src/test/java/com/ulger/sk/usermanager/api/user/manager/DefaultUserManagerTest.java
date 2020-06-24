@@ -2,7 +2,7 @@ package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.PasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.PasswordPolicyManagerImpl;
+import com.ulger.sk.usermanager.api.user.DefaultPasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.UserNotFoundException;
 import com.ulger.sk.usermanager.api.user.dao.UserDaoMock;
 import com.ulger.sk.usermanager.api.user.model.User;
@@ -37,7 +37,7 @@ public class DefaultUserManagerTest {
     void setUp() {
         this.userDao = new UserDaoMock();
         this.passwordEncoder = Mockito.mock(PasswordEncoder.class);
-        this.passwordPolicyManager = new PasswordPolicyManagerImpl();
+        this.passwordPolicyManager = new DefaultPasswordPolicyManager();
         this.userManager = new DefaultUserManager(passwordEncoder, passwordPolicyManager, userDao);
     }
 

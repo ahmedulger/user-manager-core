@@ -18,7 +18,7 @@ public class PasswordPolicyManagerTest {
 
     @BeforeEach
     void setUp() {
-        this.policyManager = new PasswordPolicyManagerImpl();
+        this.policyManager = new DefaultPasswordPolicyManager();
     }
 
     @Test
@@ -35,7 +35,7 @@ public class PasswordPolicyManagerTest {
     @Test
     void test_configuration() {
         PasswordPolicyConfiguration configuration = new PasswordPolicyConfiguration(MIN_PASS_LENGTH, MAX_PASS_LENGTH);
-        this.policyManager = new PasswordPolicyManagerImpl(configuration);
+        this.policyManager = new DefaultPasswordPolicyManager(configuration);
 
         PasswordCheckingResult result1 = policyManager.checkPolicy("a1");
         PasswordCheckingResult result2 = policyManager.checkPolicy("a123456");
@@ -67,7 +67,7 @@ public class PasswordPolicyManagerTest {
             if (pwd.contains("+")) {result.addError("conditionError3");}
         }));
 
-        this.policyManager = new PasswordPolicyManagerImpl(conditions);
+        this.policyManager = new DefaultPasswordPolicyManager(conditions);
 
         PasswordCheckingResult result1 = policyManager.checkPolicy("a.a_+s");
         PasswordCheckingResult result2 = policyManager.checkPolicy("a.a+");

@@ -7,28 +7,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-public class PasswordPolicyManagerImpl implements PasswordPolicyManager {
+public class DefaultPasswordPolicyManager implements PasswordPolicyManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(PasswordPolicyManagerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultPasswordPolicyManager.class);
 
     private PasswordPolicyConfiguration policyConfiguration;
     private Collection<PasswordPolicyCondition> additionalConditions;
 
-    public PasswordPolicyManagerImpl() {
+    public DefaultPasswordPolicyManager() {
         init();
     }
 
-    public PasswordPolicyManagerImpl(PasswordPolicyConfiguration policyConfiguration) {
+    public DefaultPasswordPolicyManager(PasswordPolicyConfiguration policyConfiguration) {
         this.policyConfiguration = policyConfiguration;
         init();
     }
 
-    public PasswordPolicyManagerImpl(Collection<PasswordPolicyCondition> additionalConditions) {
+    public DefaultPasswordPolicyManager(Collection<PasswordPolicyCondition> additionalConditions) {
         this.additionalConditions = additionalConditions;
         init();
     }
 
-    public PasswordPolicyManagerImpl(PasswordPolicyConfiguration policyConfiguration, Collection<PasswordPolicyCondition> additionalConditions) {
+    public DefaultPasswordPolicyManager(PasswordPolicyConfiguration policyConfiguration, Collection<PasswordPolicyCondition> additionalConditions) {
         this.policyConfiguration = policyConfiguration;
         this.additionalConditions = additionalConditions;
         init();
