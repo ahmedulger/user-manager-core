@@ -2,6 +2,15 @@
 # Lines that start with '#' are comments.
 # Some content is used from https://github.com/github/gitignore
 
+.gradle/
+.settings/
+
+bin/
+deploy/
+target/
+build/
+
+
 # VI generated files
 .*.sw[a-z]
 *.un~
@@ -70,3 +79,20 @@ $RECYCLE.BIN/
 *~
 .directory
 hsql
+
+### Gradle ###
+.gradle
+build/
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
+### Gradle Patch ###
+**/build/
+gradlew
+gradlew.bat
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
