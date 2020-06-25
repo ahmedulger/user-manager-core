@@ -16,7 +16,7 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 
 group = 'com.ulger.sk.usermanager'
-description = 'SK Authentication Server'
+description = 'User Manager'
 version = '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
