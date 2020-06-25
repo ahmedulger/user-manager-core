@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
-public interface UserModificationData extends UserEntity {
+public interface UserModificationData {
 
     Object getId();
 

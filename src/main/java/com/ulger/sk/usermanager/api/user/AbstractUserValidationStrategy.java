@@ -1,7 +1,7 @@
 package com.ulger.sk.usermanager.api.user;
 
+import com.ulger.sk.usermanager.api.user.manager.UserFields;
 import com.ulger.sk.usermanager.api.user.manager.UserModificationData;
-import com.ulger.sk.usermanager.api.user.model.UserFields;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;

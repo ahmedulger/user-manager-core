@@ -84,7 +84,6 @@ public class MutableUserModificationData implements UserModificationData {
         this.confirmPassword = confirmPassword;
     }
 
-    @Override
     public String getCredential() {
         return hashPassword;
     }

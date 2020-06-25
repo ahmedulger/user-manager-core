@@ -1,7 +1,6 @@
-package com.ulger.sk.usermanager.api.user.dao;
+package com.ulger.sk.usermanager.api.user.manager;
 
 import com.google.common.collect.Sets;
-import com.ulger.sk.usermanager.api.user.manager.*;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.TestReasonException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,55 +17,42 @@ import java.util.stream.Stream;
 public class UserDaoMock implements UserDao<Integer> {
 
     private final AtomicInteger id = new AtomicInteger(0);
-    private final Set<UserEntity> users = new HashSet();
+    private final Set<User> users = new HashSet();
 
-    private UniqueFieldChecker<UserEntity, DefaultUserEntity> uniqueFieldChecker = new UniqueFieldChecker(DefaultUserEntity.class, "id", "email");
-    private FieldUpdater<UserEntity, DefaultUserEntity> fieldUpdater = new FieldUpdater(DefaultUserEntity.class, "id");
+    private UniqueFieldChecker<User, UserImp> uniqueFieldChecker = new UniqueFieldChecker(UserImp.class, "id", "email");
+    private FieldUpdater<User, UserImp> fieldUpdater = new FieldUpdater(UserImp.class, "id");
 
     @Override
-    public UserEntity findById(Integer id) {
+    public User findById(Integer id) {
         return getUniqueUser(user -> user.getId().equals(id));
     }
 
     @Override
-    public UserEntity findByEmail(String email) {
+    public User findByEmail(String email) {
         return getUniqueUser(user -> user.getEmail().equals(email));
     }
 
     @Override
-    public List<UserEntity> find() throws DataAccessException {
+    public List<User> find() throws DataAccessException {
         return users.stream().collect(Collectors.toList());
     }
 
     @Override
-    public UserEntity save(UserEntity userEntity) {
+    public User save(User userEntity) {
         if (userEntity == null) {
             throw new IllegalArgumentException("Target object must not bu null");
         }
 
         Object id = userEntity.getId();
-        UserEntity sourceData = getUniqueUser(user -> user.getId().equals(id));
-
-        if (userEntity instanceof UserModificationData) {
-            userEntity = getFromModificationData((UserModificationData) userEntity);
-        }
+        User sourceData = getUniqueUser(user -> user.getId().equals(id));
 
         saveInternal(sourceData, userEntity);
 
         return userEntity;
     }
 
-    private UserEntity getFromModificationData(UserModificationData userModificationData) {
-        return new DefaultUserEntity(
-                userModificationData.getId(),
-                userModificationData.getEmail(),
-                userModificationData.getFirstName(),
-                userModificationData.getLastName(),
-                userModificationData.getCredential());
-    }
-
-    private UserEntity getUniqueUser(Predicate<UserEntity> filter) {
-        Stream<UserEntity> result = users.stream().filter(filter);
+    private User getUniqueUser(Predicate<User> filter) {
+        Stream<User> result = users.stream().filter(filter);
 
         if (users.stream().filter(filter).count() > 1) {
             throw new DataAccessException(new TestReasonException(TestReasonException.Reason.INCORRECT_RESULT_COUNT, "Incorrect result count"));
@@ -79,7 +65,7 @@ public class UserDaoMock implements UserDao<Integer> {
         return null;
     }
 
-    private UserEntity saveInternal(UserEntity sourceData, UserEntity toBeSavedData) {
+    private User saveInternal(User sourceData, User toBeSavedData) {
         // Throws exception if non unique field has detected
         uniqueFieldChecker.checkUniqueFields(users, toBeSavedData);
 
@@ -99,10 +85,10 @@ public class UserDaoMock implements UserDao<Integer> {
         return id.addAndGet(1);
     }
 
-    private void setId(UserEntity userEntity, Integer id) {
-        if (userEntity instanceof DefaultUserEntity) {
+    private void setId(User userEntity, Integer id) {
+        if (userEntity instanceof UserImp) {
             try {
-                Field idField = DefaultUserEntity.class.getDeclaredField("id");
+                Field idField = UserImp.class.getDeclaredField("id");
                 idField.setAccessible(true);
                 idField.set(userEntity, id);
             } catch (Exception e) {

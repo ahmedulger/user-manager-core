@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user;
 
-import com.ulger.sk.usermanager.api.user.model.User;
+import com.ulger.sk.usermanager.api.user.manager.User;
 import com.ulger.sk.usermanager.cache.Cache;
 
 import java.util.Collection;

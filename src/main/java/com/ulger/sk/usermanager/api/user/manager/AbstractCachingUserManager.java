@@ -2,7 +2,6 @@ package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.UserModificationEvent;
 import com.ulger.sk.usermanager.api.user.UserModificationEventListener;
-import com.ulger.sk.usermanager.api.user.model.User;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;

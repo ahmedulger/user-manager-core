@@ -1,4 +1,4 @@
-package com.ulger.sk.usermanager.api.user.model;
+package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.cache.Cacheable;
 
@@ -30,6 +30,12 @@ public interface User extends Cacheable {
      * @return lastName
      */
     String getLastName();
+
+    /**
+     * Credential of user
+     * @return credential
+     */
+    String getCredential();
 
     /**
      * Full name of user

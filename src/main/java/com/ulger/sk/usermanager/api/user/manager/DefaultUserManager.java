@@ -1,9 +1,6 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.*;
-import com.ulger.sk.usermanager.api.user.model.User;
-import com.ulger.sk.usermanager.api.user.model.UserFields;
-import com.ulger.sk.usermanager.api.user.model.UserImp;
 import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.ValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +14,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.ulger.sk.usermanager.SkAssertions.notBlank;
 import static com.ulger.sk.usermanager.SkAssertions.notNull;
@@ -49,10 +45,10 @@ public class DefaultUserManager implements UserManager {
 
     /**
      * Constructs instance with UserDao and {@link UserEntityBuilder} parameter.
-     * @param userEntityBuilder is useful to save waste converting operation between type of {@link UserEntity}
-     *                          {@link UserDao} uses a {@link UserEntity} instance to save data to the source.
-     *                          If no userEntityBuilder given than this manager passes {@link DefaultUserEntity} to {@link UserDao}.
-     *                          But if you give a {@link UserEntityBuilder} that creates a {@link UserEntity} directly without
+     * @param userEntityBuilder is useful to save waste converting operation between type of {@link User}
+     *                          {@link UserDao} uses a {@link User} instance to save data to the source.
+     *                          If no userEntityBuilder given than this manager passes {@link UserImp} to {@link UserDao}.
+     *                          But if you give a {@link UserEntityBuilder} that creates a {@link User} directly without
      *                          unnecessary converting operation.
      * @param userDao
      */
@@ -82,10 +78,10 @@ public class DefaultUserManager implements UserManager {
      * Constructs instance with UserDao.
      * If no event listener given than any events will be published after user modification
      *
-     * @param userEntityBuilder is useful to save waste converting operation between type of {@link UserEntity}
-     *                        {@link UserDao} uses a {@link UserEntity} instance to save data to the source.
-     *                        If no userEntityBuilder given than this manager passes {@link DefaultUserEntity} to {@link UserDao}.
-     *                        But if you give a {@link UserEntityBuilder} that creates a {@link UserEntity} directly without
+     * @param userEntityBuilder is useful to save waste converting operation between type of {@link User}
+     *                        {@link UserDao} uses a {@link User} instance to save data to the source.
+     *                        If no userEntityBuilder given than this manager passes {@link UserImp} to {@link UserDao}.
+     *                        But if you give a {@link UserEntityBuilder} that creates a {@link User} directly without
      *                        unnecessary converting operation.
      * @param userDao
      * @param modificationEventListeners
@@ -124,9 +120,9 @@ public class DefaultUserManager implements UserManager {
 
         notBlank(UserFields.EMAIL, email);
 
-        UserEntity userEntity = userDao.findByEmail(email);
+        User user = userDao.findByEmail(email);
 
-        if (userEntity == null) {
+        if (user == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("[getUserByEmail] No user found with email :: email={}", email);
             }
@@ -134,7 +130,7 @@ public class DefaultUserManager implements UserManager {
             return null;
         }
 
-        return convertEntity(userEntity);
+        return user;
     }
 
     /**
@@ -142,16 +138,18 @@ public class DefaultUserManager implements UserManager {
      */
     @Override
     public List<User> getAllUsers() {
-        List<UserEntity> allUsers = userDao.find();
+        List<User> allUsers = userDao.find();
 
         if (logger.isDebugEnabled()) {
             logger.debug("[getAllUsers] found user count :: count={}", allUsers.size());
         }
 
-        return allUsers
+       /* return allUsers
                 .stream()
                 .map((entity) -> convertEntity(entity))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+
+        return allUsers;
     }
 
     @Override
@@ -182,17 +180,16 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalArgumentException("id or email should be given to update operation");
         }
 
-        UserEntity userEntity = getUserByIdOrEmail(userModificationData);
-        if (userEntity == null) {
+        User user = getUserByIdOrEmail(userModificationData);
+        if (user == null) {
             throw new UserNotFoundException("User not found with id: " +
                     mutableUserModificationData.getId() + " or email: " + mutableUserModificationData.getEmail());
         }
 
-        checkIfEmailChanged(userModificationData, userEntity);
+        checkIfEmailChanged(userModificationData, user);
+        updateId(mutableUserModificationData, user.getId());
 
-        mutableUserModificationData.setId(userEntity.getId());
-
-        User user = createOrUpdateUser(mutableUserModificationData);
+        user = createOrUpdateUser(mutableUserModificationData);
         logger.info("[updateUser] User has been updated :: email={}", user.getEmail());
 
         return user;
@@ -210,18 +207,17 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalArgumentException("id or email should be given to change password");
         }
 
-        UserEntity userEntity = getUserByIdOrEmail(userModificationData);
-        if (userEntity == null) {
+        User user = getUserByIdOrEmail(userModificationData);
+        if (user == null) {
             throw new UserNotFoundException("User not found with id: " +
                     mutableUserModificationData.getId() + " or email: " + mutableUserModificationData.getEmail());
         }
 
-        checkIfEmailChanged(userModificationData, userEntity);
+        checkIfEmailChanged(userModificationData, user);
         encryptPassword(mutableUserModificationData);
+        updateId(mutableUserModificationData, user.getId());
 
-        mutableUserModificationData.setId(userEntity.getId());
-
-        User user = createOrUpdateUser(mutableUserModificationData);
+        user = createOrUpdateUser(mutableUserModificationData);
         logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
     }
 
@@ -234,7 +230,7 @@ public class DefaultUserManager implements UserManager {
         logger.info("[addEventListener] New event listener has been added");
     }
 
-    private UserEntity getUserByIdOrEmail(UserModificationData userModificationData) {
+    private User getUserByIdOrEmail(UserModificationData userModificationData) {
         if (!Objects.isNull(userModificationData.getId())) {
             return userDao.findById(userModificationData.getId());
         }
@@ -242,13 +238,17 @@ public class DefaultUserManager implements UserManager {
         return userDao.findByEmail(userModificationData.getEmail());
     }
 
-    private void checkIfEmailChanged(UserModificationData userModificationData, UserEntity userEntity) {
+    private void checkIfEmailChanged(UserModificationData userModificationData, User user) {
         if (!Objects.isNull(userModificationData.getId()) &&
                 !StringUtils.isBlank(userModificationData.getEmail()) &&
-                !userModificationData.getEmail().equals(userEntity.getEmail())) {
+                !userModificationData.getEmail().equals(user.getEmail())) {
 
             throw new ApiException("Email is one of none-updatable fields");
         }
+    }
+
+    private void updateId(MutableUserModificationData data, Object id) {
+        data.setId(id);
     }
 
     private void encryptPassword(MutableUserModificationData mutableUserModificationData) {
@@ -269,28 +269,37 @@ public class DefaultUserManager implements UserManager {
         }
     }
 
-    private User createOrUpdateUser(UserModificationData modificationData) {
+    private User createOrUpdateUser(MutableUserModificationData modificationData) {
         logger.info("[createOrUpdateUser] User is saving :: data={}", modificationData);
 
-        UserEntity userEntity;
+        User user;
 
         if (userEntityBuilder == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("[createOrUpdateUser] No entity builder found, using default");
             }
 
-            userEntity = modificationData;
+            user = createInstanceByModificationData(modificationData);
         } else {
-            userEntity = userEntityBuilder.build(modificationData);
+            user = userEntityBuilder.build(modificationData);
         }
 
-        userEntity = userDao.save(userEntity);
+        user = userDao.save(user);
         logger.info("[createOrUpdateUser] User has been saved");
 
-        User user = UserImp.newInstance(userEntity.getId(), userEntity.getEmail(), userEntity.getFirstName(), userEntity.getLastName());
         triggerEvents(modificationData, user);
 
         return user;
+    }
+
+    private UserImp createInstanceByModificationData(MutableUserModificationData userModificationData) {
+        return UserImp.Builder.anUserImp()
+                .withId(userModificationData.getId())
+                .withEmail(userModificationData.getEmail())
+                .withFirstName(userModificationData.getFirstName())
+                .withLastName(userModificationData.getLastName())
+                .withCredential(userModificationData.getCredential())
+                .build();
     }
 
     private void triggerEvents(UserModificationData sourceData, User user) {
@@ -316,14 +325,6 @@ public class DefaultUserManager implements UserManager {
         modificationEventListeners.forEach((listener) -> {
             listener.onModified(event);
         });
-    }
-
-    private UserImp convertEntity(UserEntity userEntity) {
-        return UserImp.newInstance(
-                userEntity.getId(),
-                userEntity.getEmail(),
-                userEntity.getFirstName(),
-                userEntity.getLastName());
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
+import com.ulger.sk.usermanager.cache.Cacheable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Objects;
 
-public class DefaultUserEntity implements UserEntity {
+public class UserImp implements User, Cacheable {
 
     private final Object id;
     private final String email;
@@ -15,7 +16,7 @@ public class DefaultUserEntity implements UserEntity {
 
     private Integer hashCode;
 
-    public DefaultUserEntity(Object id, String email, String firstName, String lastName, String credential) {
+    private UserImp(Object id, String email, String firstName, String lastName, String credential) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
@@ -23,8 +24,8 @@ public class DefaultUserEntity implements UserEntity {
         this.credential = credential;
     }
 
-    public DefaultUserEntity(String firstName, String lastName, String credential) {
-        this(null, null, firstName, lastName, credential);
+    public static final UserImp newInstance(Object id, String email, String firstName, String lastName, String credential) {
+        return new UserImp(id, email, firstName, lastName, credential);
     }
 
     @Override
@@ -56,8 +57,8 @@ public class DefaultUserEntity implements UserEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DefaultUserEntity that = (DefaultUserEntity) o;
-        return Objects.equals(id, that.id);
+        UserImp userImp = (UserImp) o;
+        return Objects.equals(id, userImp.id);
     }
 
     @Override
@@ -76,8 +77,51 @@ public class DefaultUserEntity implements UserEntity {
                 .append("email", email)
                 .append("firstName", firstName)
                 .append("lastName", lastName)
-                .append("credential", credential)
-                .append("hashCode", hashCode)
                 .toString();
+    }
+
+    public static final class Builder {
+        private Object id;
+        private String email;
+        private String firstName;
+        private String lastName;
+        private String credential;
+
+        private Builder() {
+        }
+
+        public static Builder anUserImp() {
+            return new Builder();
+        }
+
+        public Builder withId(Object id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder withFirstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public Builder withLastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder withCredential(String credential) {
+            this.credential = credential;
+            return this;
+        }
+
+        public UserImp build() {
+            UserImp userImp = new UserImp(id, email, firstName, lastName, credential);
+            return userImp;
+        }
     }
 }

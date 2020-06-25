@@ -6,42 +6,42 @@ import java.util.List;
 
 /**
  * Data source operations like writing, reading
- * T generic refers to type of Id field of {@link UserEntity}
+ * T generic refers to type of Id field of {@link User}
  */
 public interface UserDao<T> {
 
     /**
-     * Searches and returns {@link UserEntity} whose id is given id value
+     * Searches and returns {@link User} whose id is given id value
      *
-     * @param id, the id of UserEntity
-     * @return {@link UserEntity}
+     * @param id, the id of User
+     * @return {@link User}
      * @throws DataAccessException when anny error occurred on data source
      */
-    UserEntity findById(T id) throws DataAccessException;
+    User findById(T id) throws DataAccessException;
 
     /**
-     * Searches and returns {@link UserEntity} whose email is given email value
+     * Searches and returns {@link User} whose email is given email value
      *
-     * @param email, the email of UserEntity
-     * @return {@link UserEntity}
+     * @param email, the email of User
+     * @return {@link User}
      * @throws DataAccessException when anny error occurred on data source
      */
-    UserEntity findByEmail(String email) throws DataAccessException;
+    User findByEmail(String email) throws DataAccessException;
 
     /**
-     * Searches and returns all {@link UserEntity} list
+     * Searches and returns all {@link User} list
      *
-     * @return empty list if no data found. List<UserEntity>
+     * @return empty list if no data found. List<User>
      * @throws DataAccessException when anny error occurred on data source
      */
-    List<UserEntity> find() throws DataAccessException;
+    List<User> find() throws DataAccessException;
 
     /**
-     * Saves given {@link UserEntity} object.
+     * Saves given {@link User} object.
      * If id is given than updates, if not than tries to create new instance
-     * @param userEntity
+     * @param user
      * @return created or updated instance
      * @throws DataAccessException when anny error occurred on data source
      */
-    UserEntity save(UserEntity userEntity) throws DataAccessException;
+    User save(User user) throws DataAccessException;
 }

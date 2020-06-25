@@ -5,7 +5,7 @@ package com.ulger.sk.usermanager.api.user.manager;
  */
 public interface UserEntityBuilder {
 
-    UserEntity build(Object id, String email, String firstName, String lastName, String credential);
+    User build(Object id, String email, String firstName, String lastName, String credential);
 
-    UserEntity build(UserModificationData data);
+    User build(UserModificationData data);
 }

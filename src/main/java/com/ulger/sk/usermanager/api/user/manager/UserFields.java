@@ -1,4 +1,4 @@
-package com.ulger.sk.usermanager.api.user.model;
+package com.ulger.sk.usermanager.api.user.manager;
 
 public class UserFields {
 

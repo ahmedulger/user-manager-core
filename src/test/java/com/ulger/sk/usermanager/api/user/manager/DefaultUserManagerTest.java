@@ -1,11 +1,9 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
+import com.ulger.sk.usermanager.api.user.DefaultPasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.PasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.DefaultPasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.UserNotFoundException;
-import com.ulger.sk.usermanager.api.user.dao.UserDaoMock;
-import com.ulger.sk.usermanager.api.user.model.User;
 import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.TestReasonException;

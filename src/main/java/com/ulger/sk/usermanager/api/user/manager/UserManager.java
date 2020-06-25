@@ -1,7 +1,6 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.UserNotFoundException;
-import com.ulger.sk.usermanager.api.user.model.User;
 import com.ulger.sk.usermanager.exception.ValidationException;
 
 import java.util.List;
