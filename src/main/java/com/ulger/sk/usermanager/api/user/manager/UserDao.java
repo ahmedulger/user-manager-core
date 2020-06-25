@@ -31,7 +31,7 @@ public interface UserDao<T> {
     /**
      * Searches and returns all {@link User} list
      *
-     * @return empty list if no data found. List<User>
+     * @return empty list if no data found. Returning user list is new list or immutable list.
      * @throws DataAccessException when anny error occurred on data source
      */
     List<User> find() throws DataAccessException;
