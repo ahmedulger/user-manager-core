@@ -2,7 +2,6 @@ package com.ulger.sk.usermanager.api.user;
 
 import com.ulger.sk.usermanager.api.user.manager.User;
 import com.ulger.sk.usermanager.cache.Cache;
-import com.ulger.sk.usermanager.cache.Cacheable;
 
 import java.util.Collection;
 import java.util.HashMap;

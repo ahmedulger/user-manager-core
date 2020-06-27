@@ -58,17 +58,6 @@ public class AbstractUserValidationStrategyTest {
     }
 
     @Test
-    void test_password_confirmation_validation() {
-        MutableUserModificationData mutableUserModificationData = createSimpleData();
-        assertTrue(validationStrategy.validate(mutableUserModificationData).isValid());
-
-        setAndTestAndRollback(validationStrategy, mutableUserModificationData, false, " ", MutableUserModificationData::getConfirmPassword, mutableUserModificationData::setConfirmPassword);
-        setAndTestAndRollback(validationStrategy, mutableUserModificationData, false, null, MutableUserModificationData::getConfirmPassword, mutableUserModificationData::setConfirmPassword);
-        setAndTestAndRollback(validationStrategy, mutableUserModificationData, false, "diff", MutableUserModificationData::getRawPassword, mutableUserModificationData::setRawPassword);
-        setAndTestAndRollback(validationStrategy, mutableUserModificationData, false, "diff", MutableUserModificationData::getConfirmPassword, mutableUserModificationData::setConfirmPassword);
-    }
-
-    @Test
     void test_username_validation() {
         MutableUserModificationData mutableUserModificationData = createSimpleData();
         assertTrue(validationStrategy.validate(mutableUserModificationData).isValid());
@@ -100,7 +89,6 @@ public class AbstractUserValidationStrategyTest {
         request.setFirstName("Ahmet");
         request.setLastName("Ülger");
         request.setRawPassword("123");
-        request.setConfirmPassword("123");
 
         return request;
     }

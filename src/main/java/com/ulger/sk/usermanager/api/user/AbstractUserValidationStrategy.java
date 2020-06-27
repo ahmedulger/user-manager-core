@@ -73,7 +73,6 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
 
         void validateAllPassword() {
             validatePassword();
-            validateConfirmPassword();
             validatePasswordPolicy();
         }
 
@@ -81,20 +80,6 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
             if (StringUtils.isEmpty(userModificationData.getRawPassword())) {
                 addError(UserFields.PASSWORD, "You must specify a password");
                 return false;
-            }
-
-            return true;
-        }
-
-        boolean validateConfirmPassword() {
-            String password = userModificationData.getRawPassword();
-            String confirmPassword = userModificationData.getConfirmPassword();
-
-            if (StringUtils.isNotEmpty(confirmPassword) || StringUtils.isNotEmpty(password)) {
-                if (password == null || !password.equals(confirmPassword)) {
-                    addError(UserFields.CONFIRM_PASSWORD, "Your password and confirmation password do not match");
-                    return false;
-                }
             }
 
             return true;

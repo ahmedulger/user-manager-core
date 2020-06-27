@@ -274,7 +274,6 @@ public class DefaultUserManagerTest {
         request.setFirstName(firstName);
         request.setLastName(lastName);
         request.setRawPassword(password);
-        request.setConfirmPassword(password);
 
         return request;
     }

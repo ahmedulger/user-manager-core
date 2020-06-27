@@ -58,7 +58,6 @@ public class DefaultUserValidationContextTest {
         data.setFirstName("Ahmet");
         data.setLastName("Ülger");
         data.setRawPassword("123");
-        data.setConfirmPassword("123");
 
         return data;
     }

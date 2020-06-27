@@ -15,7 +15,6 @@ public class MutableUserModificationData implements UserModificationData {
     private String firstName;
     private String lastName;
     private String rawPassword;
-    private String confirmPassword;
     private String hashPassword;
 
     MutableUserModificationData() {
@@ -27,7 +26,6 @@ public class MutableUserModificationData implements UserModificationData {
         this.firstName = userModificationData.getFirstName();
         this.lastName = userModificationData.getLastName();
         this.rawPassword = userModificationData.getRawPassword();
-        this.confirmPassword = userModificationData.getConfirmPassword();
     }
 
     @Override
@@ -75,15 +73,6 @@ public class MutableUserModificationData implements UserModificationData {
         this.rawPassword = rawPassword;
     }
 
-    @Override
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
-
     public String getCredential() {
         return hashPassword;
     }
@@ -106,13 +95,12 @@ public class MutableUserModificationData implements UserModificationData {
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName) &&
                 Objects.equals(rawPassword, that.rawPassword) &&
-                Objects.equals(hashPassword, that.hashPassword) &&
-                Objects.equals(confirmPassword, that.confirmPassword);
+                Objects.equals(hashPassword, that.hashPassword);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, firstName, lastName, rawPassword, hashPassword, confirmPassword);
+        return Objects.hash(id, email, firstName, lastName, rawPassword, hashPassword);
     }
 
     @Override
@@ -124,7 +112,6 @@ public class MutableUserModificationData implements UserModificationData {
                 .append("lastName", lastName)
                 .append("rawPassword", rawPassword)
                 .append("hashPassword", hashPassword)
-                .append("confirmPassword", confirmPassword)
                 .toString();
     }
 }

@@ -86,7 +86,6 @@ public class SimpleErrorCollection implements ErrorCollection {
         return (errors != null && !errors.isEmpty()) || (errorMessages != null && !errorMessages.isEmpty());
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -101,6 +100,7 @@ public class SimpleErrorCollection implements ErrorCollection {
         if (!errorMessages.equals(that.errorMessages)) {
             return false;
         }
+
         if (!errors.equals(that.errors)) {
             return false;
         }

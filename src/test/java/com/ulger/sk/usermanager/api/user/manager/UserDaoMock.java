@@ -24,12 +24,12 @@ public class UserDaoMock implements UserDao<Integer> {
 
     @Override
     public User findById(Integer id) {
-        return getUniqueUser(user -> user.getId().equals(id));
+        return getAsUniqueUser(getUserFromSource(user -> user.getId().equals(id)));
     }
 
     @Override
     public User findByEmail(String email) {
-        return getUniqueUser(user -> user.getEmail().equals(email));
+        return getAsUniqueUser(getUserFromSource(user -> user.getEmail().equals(email)));
     }
 
     @Override
@@ -44,14 +44,18 @@ public class UserDaoMock implements UserDao<Integer> {
         }
 
         Object id = userEntity.getId();
-        User sourceData = getUniqueUser(user -> user.getId().equals(id));
+        User sourceData = getUserFromSource(user -> user.getId().equals(id));
 
         saveInternal(sourceData, userEntity);
 
-        return userEntity;
+        return getAsUniqueUser(userEntity);
     }
 
-    private User getUniqueUser(Predicate<User> filter) {
+    private User getAsUniqueUser(User user) {
+        return UserImp.newInstance(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getCredential());
+    }
+
+    private User getUserFromSource(Predicate<User> filter) {
         Stream<User> result = users.stream().filter(filter);
 
         if (users.stream().filter(filter).count() > 1) {
@@ -59,8 +63,7 @@ public class UserDaoMock implements UserDao<Integer> {
         }
 
         if (users.stream().filter(filter).findFirst().isPresent()) {
-            User user = result.findFirst().get();
-            return UserImp.newInstance(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getCredential());
+            return result.findFirst().get();
         }
 
         return null;

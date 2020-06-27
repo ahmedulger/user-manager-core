@@ -11,6 +11,4 @@ public interface UserModificationData {
     String getLastName();
 
     String getRawPassword();
-
-    String getConfirmPassword();
 }
