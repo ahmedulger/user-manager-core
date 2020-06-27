@@ -21,6 +21,10 @@ version = '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.10'
     compile group: 'org.apache.commons', name: 'commons-collections4', version:'4.4'
@@ -29,6 +33,6 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.30'
     compile group: 'commons-codec', name: 'commons-codec', version:'1.11'
 	
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.6.2'
     testCompile group: 'org.mockito', name: 'mockito-all', version:'1.10.19'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
 }
