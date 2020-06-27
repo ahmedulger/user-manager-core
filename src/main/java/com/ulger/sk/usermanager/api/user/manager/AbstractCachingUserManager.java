@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractCachingUserManager implements UserManager {
 
@@ -206,9 +207,14 @@ public abstract class AbstractCachingUserManager implements UserManager {
             logger.debug("[triggerEvents] Triggering events with data :: event={}", event);
         }
 
-        modificationEventListeners.forEach((listener) -> {
+        for (UserModificationEventListener listener : modificationEventListeners) {
+            if (listener.isAsync()) {
+                CompletableFuture.runAsync(() -> listener.onModified(event));
+                continue;
+            }
+
             listener.onModified(event);
-        });
+        }
     }
 
     @Override

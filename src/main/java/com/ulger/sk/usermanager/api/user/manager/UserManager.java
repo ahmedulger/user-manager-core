@@ -1,7 +1,7 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.UserNotFoundException;
-import com.ulger.sk.usermanager.exception.ValidationException;
+import com.ulger.sk.usermanager.api.user.ValidationException;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public interface UserManager {
      *
      * @param userModificationData contains user information to be saved.
      * @return Created {@link User} data
-     * @throws com.ulger.sk.usermanager.exception.ValidationException when given data is not valid
+     * @throws ValidationException when given data is not valid
      * */
     User createUser(UserModificationData userModificationData) throws ValidationException;
 
@@ -41,7 +41,7 @@ public interface UserManager {
      *
      * @param userModificationData contains user information to be saved.
      * @return Updated {@link User} data
-     * @throws com.ulger.sk.usermanager.exception.ValidationException when given data is not valid
+     * @throws ValidationException when given data is not valid
      * @throws UserNotFoundException if no user found with given email or id
      */
     User updateUser(UserModificationData userModificationData) throws ValidationException;
@@ -50,7 +50,7 @@ public interface UserManager {
      * Changes users password
      * @param userModificationData
      * @throws IllegalArgumentException if when given data is null
-     * @throws com.ulger.sk.usermanager.exception.ValidationException if given data is not valid
+     * @throws ValidationException if given data is not valid
      * @throws UserNotFoundException if no user found with given email or id
      * @return Updated {@link User} data
      */

@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user;
 
-import com.ulger.sk.usermanager.api.user.manager.UserFields;
+import com.ulger.sk.usermanager.api.user.manager.UserField;
 import com.ulger.sk.usermanager.api.user.manager.UserModificationData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -45,8 +45,8 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
             }
         }
 
-        private void addError(String field, String message) {
-            validationResult.getErrorCollection().addError(field, message);
+        private void addError(UserField field, String message) {
+            validationResult.getErrorCollection().addError(field.getName(), message);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("[addError] Field is invalid :: field={}, message={]", field, message);
@@ -59,12 +59,12 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
 
         boolean validateEmailAddress() {
             if (StringUtils.isEmpty(userModificationData.getEmail())) {
-                addError(UserFields.EMAIL, "You must specify email address");
+                addError(UserField.EMAIL, "You must specify email address");
                 return false;
             }
 
             if (!emailValidator.isValid(userModificationData.getEmail())) {
-                addError(UserFields.EMAIL, "You must specify a valid email address");
+                addError(UserField.EMAIL, "You must specify a valid email address");
                 return false;
             }
 
@@ -78,7 +78,7 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
 
         boolean validatePassword() {
             if (StringUtils.isEmpty(userModificationData.getRawPassword())) {
-                addError(UserFields.PASSWORD, "You must specify a password");
+                addError(UserField.PASSWORD, "You must specify a password");
                 return false;
             }
 
@@ -89,7 +89,7 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
             String password = userModificationData.getRawPassword();
             PasswordCheckingResult passwordCheckingResult = passwordPolicyManager.checkPolicy(password);
             if (passwordCheckingResult.hasError()) {
-                addError(UserFields.PASSWORD, "You must specify a password");
+                addError(UserField.PASSWORD, "You must specify a valid password");
                 return false;
             }
 
@@ -101,12 +101,12 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
             String lastName = userModificationData.getLastName();
 
             if (StringUtils.isBlank(firstName)) {
-                addError(UserFields.FIRST_NAME, "You must specify your name");
+                addError(UserField.FIRST_NAME, "You must specify your name");
                 return false;
             }
 
             if (StringUtils.isBlank(lastName)) {
-                addError(UserFields.LAST_NAME, "You must specify your last name");
+                addError(UserField.LAST_NAME, "You must specify your last name");
                 return false;
             }
 

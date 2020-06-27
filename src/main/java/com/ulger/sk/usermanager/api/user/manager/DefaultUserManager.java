@@ -2,7 +2,8 @@ package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.*;
 import com.ulger.sk.usermanager.exception.ApiException;
-import com.ulger.sk.usermanager.exception.ValidationException;
+import com.ulger.sk.usermanager.exception.IllegalParameterException;
+import com.ulger.sk.usermanager.api.user.ValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -119,7 +120,7 @@ public class DefaultUserManager implements UserManager {
             logger.debug("[getUserByEmail] Getting user with email :: email={}", email);
         }
 
-        notBlank(UserFields.EMAIL, email);
+        notBlank(UserField.EMAIL, email);
 
         User user = userDao.findByEmail(email);
 
@@ -178,7 +179,7 @@ public class DefaultUserManager implements UserManager {
         validate(mutableUserModificationData, DefaultUserValidationContext.OPERATION_UPDATE);
 
         if (Objects.isNull(mutableUserModificationData.getId()) && StringUtils.isBlank(mutableUserModificationData.getEmail())) {
-            throw new IllegalArgumentException("id or email should be given to update operation");
+            throw new IllegalParameterException("id or email should be given to update operation");
         }
 
         User user = getUserByIdOrEmail(userModificationData);
@@ -205,7 +206,7 @@ public class DefaultUserManager implements UserManager {
         validate(mutableUserModificationData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
 
         if (Objects.isNull(mutableUserModificationData.getId()) && StringUtils.isBlank(mutableUserModificationData.getEmail())) {
-            throw new IllegalArgumentException("id or email should be given to change password");
+            throw new IllegalParameterException("id or email should be given to change password");
         }
 
         User user = getUserByIdOrEmail(userModificationData);
@@ -258,7 +259,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     private String encryptPassword(String rawPassword) {
-        notBlank(UserFields.PASSWORD, rawPassword);
+        notBlank(UserField.PASSWORD, rawPassword);
         return passwordEncoder.encode(rawPassword);
     }
 

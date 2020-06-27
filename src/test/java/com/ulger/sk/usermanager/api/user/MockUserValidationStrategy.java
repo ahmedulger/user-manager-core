@@ -15,7 +15,6 @@ public class MockUserValidationStrategy extends AbstractUserValidationStrategy {
         validator.validateEmailAddress();
         validator.validateUserName();
         validator.validatePassword();
-        validator.validateConfirmPassword();
         validator.validatePasswordPolicy();
 
         return validator.getValidationResult();
