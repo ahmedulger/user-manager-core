@@ -224,9 +224,14 @@ public class DefaultUserManagerTest {
     }
 
     @Test
-    void test_events() {
+    void test_events() throws InterruptedException {
         UserModificationEventListener listener = Mockito.mock(UserModificationEventListener.class);
+        UserModificationEventListener listener2 = Mockito.mock(UserModificationEventListener.class);
         ((DefaultUserManager) userManager).addEventListener(listener);
+        ((DefaultUserManager) userManager).addEventListener(listener2);
+
+        when(listener.isAsync()).thenReturn(false);
+        when(listener2.isAsync()).thenReturn(true);
 
         User user1 = userManager.createUser(data1);
         verify(listener, times(1)).onModified(anyObject());
@@ -244,7 +249,6 @@ public class DefaultUserManagerTest {
         data1.setFirstName("Ahmet3");
 
         userManager.updateUser(data1);
-        verify(listener, times(2)).onModified(anyObject());
         verify(listener, new VerificationMode() {
             @Override
             public void verify(VerificationData verificationData) {
@@ -254,6 +258,8 @@ public class DefaultUserManagerTest {
                 assertEquals(data1.getFirstName(), event.getModifiedData().getFirstName());
             }
         }).onModified(anyObject());
+
+        verify(listener2, times(2)).onModified(anyObject());
     }
 
     private static MutableUserModificationData getModificationData(String email, String firstName, String lastName, String password) {
