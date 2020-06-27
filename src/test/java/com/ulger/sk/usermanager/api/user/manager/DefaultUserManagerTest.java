@@ -1,9 +1,6 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
-import com.ulger.sk.usermanager.api.user.DefaultPasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.PasswordEncoder;
-import com.ulger.sk.usermanager.api.user.PasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.UserNotFoundException;
+import com.ulger.sk.usermanager.api.user.*;
 import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.TestReasonException;
@@ -11,12 +8,14 @@ import com.ulger.sk.usermanager.exception.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.api.VerificationData;
+import org.mockito.verification.VerificationMode;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultUserManagerTest {
 
@@ -222,6 +221,39 @@ public class DefaultUserManagerTest {
         when(passwordEncoder.encode(anyString())).thenReturn("hashed2");
         userManager.changePassword(data1);
         assertEquals("hashed2", userDao.findByEmail(data1.getEmail()).getCredential());
+    }
+
+    @Test
+    void test_events() {
+        UserModificationEventListener listener = Mockito.mock(UserModificationEventListener.class);
+        ((DefaultUserManager) userManager).addEventListener(listener);
+
+        User user1 = userManager.createUser(data1);
+        verify(listener, times(1)).onModified(anyObject());
+        verify(listener, new VerificationMode() {
+            @Override
+            public void verify(VerificationData verificationData) {
+                UserModificationEvent event = (UserModificationEvent) verificationData.getAllInvocations().get(1).getRawArguments()[0];
+                assertEquals(UserModificationEvent.EventType.CREATE, event.getEventType());
+                assertEquals(data1, event.getModificationData());
+                assertEquals(data1.getEmail(), event.getModifiedData().getEmail());
+            }
+        }).onModified(anyObject());
+
+        data1.setId(user1.getId());
+        data1.setFirstName("Ahmet3");
+
+        userManager.updateUser(data1);
+        verify(listener, times(2)).onModified(anyObject());
+        verify(listener, new VerificationMode() {
+            @Override
+            public void verify(VerificationData verificationData) {
+                UserModificationEvent event = (UserModificationEvent) verificationData.getAllInvocations().get(3).getRawArguments()[0];
+                assertEquals(UserModificationEvent.EventType.UPDATE, event.getEventType());
+                assertEquals(data1, event.getModificationData());
+                assertEquals(data1.getFirstName(), event.getModifiedData().getFirstName());
+            }
+        }).onModified(anyObject());
     }
 
     private static MutableUserModificationData getModificationData(String email, String firstName, String lastName, String password) {

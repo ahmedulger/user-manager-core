@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import static com.ulger.sk.usermanager.SkAssertions.notBlank;
 import static com.ulger.sk.usermanager.SkAssertions.notNull;
@@ -322,9 +323,14 @@ public class DefaultUserManager implements UserManager {
             logger.debug("[triggerEvents] Triggering events with data :: event={}", event);
         }
 
-        modificationEventListeners.forEach((listener) -> {
+        for (UserModificationEventListener listener : modificationEventListeners) {
+            if (listener.isAsync()) {
+                CompletableFuture.runAsync(() -> listener.onModified(event));
+                continue;
+            }
+
             listener.onModified(event);
-        });
+        }
     }
 
     @Override
