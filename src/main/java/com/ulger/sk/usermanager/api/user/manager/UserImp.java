@@ -29,6 +29,11 @@ public class UserImp implements User, Cacheable {
     }
 
     @Override
+    public Object getCacheId() {
+        return email;
+    }
+
+    @Override
     public Object getId() {
         return id;
     }

@@ -197,7 +197,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public void changePassword(UserModificationData userModificationData) {
+    public User changePassword(UserModificationData userModificationData) {
         logger.info("[changePassword] User's password is updating :: data={}", userModificationData);
         notNull(userModificationData, "User update data should not be null");
 
@@ -220,6 +220,7 @@ public class DefaultUserManager implements UserManager {
 
         user = createOrUpdateUser(mutableUserModificationData);
         logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
+        return user;
     }
 
     /**

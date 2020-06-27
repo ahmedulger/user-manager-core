@@ -94,6 +94,11 @@ public class DefaultUserManagerTest {
         assertTrue(hasSameData(userManager.getUserByEmail(user2.getEmail()), data2));
         assertTrue(hasSameData(userManager.getUserByEmail(user3.getEmail()), data3));
         assertTrue(hasSameData(userManager.getUserByEmail(user4.getEmail()), data4));
+
+        assertFalse(user1 == userManager.getUserByEmail(user1.getEmail()));
+        assertFalse(user2 == userManager.getUserByEmail(user2.getEmail()));
+        assertFalse(user3 == userManager.getUserByEmail(user3.getEmail()));
+        assertFalse(user4 == userManager.getUserByEmail(user4.getEmail()));
     }
 
     @Test

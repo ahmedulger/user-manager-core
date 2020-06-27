@@ -29,7 +29,7 @@ public interface UserManager {
      * Returns a {@link User} object created by using modification data that is given as parameter
      *
      * @param userModificationData contains user information to be saved.
-     * @return {@link User}
+     * @return Created {@link User} data
      * @throws com.ulger.sk.usermanager.exception.ValidationException when given data is not valid
      * */
     User createUser(UserModificationData userModificationData) throws ValidationException;
@@ -40,7 +40,7 @@ public interface UserManager {
      * throws {@link IllegalArgumentException}. Email value can not be updatable when once created.
      *
      * @param userModificationData contains user information to be saved.
-     * @return {@link User}
+     * @return Updated {@link User} data
      * @throws com.ulger.sk.usermanager.exception.ValidationException when given data is not valid
      * @throws UserNotFoundException if no user found with given email or id
      */
@@ -52,6 +52,7 @@ public interface UserManager {
      * @throws IllegalArgumentException if when given data is null
      * @throws com.ulger.sk.usermanager.exception.ValidationException if given data is not valid
      * @throws UserNotFoundException if no user found with given email or id
+     * @return Updated {@link User} data
      */
-    void changePassword(UserModificationData userModificationData) throws ValidationException;
+    User changePassword(UserModificationData userModificationData) throws ValidationException;
 }

@@ -179,8 +179,19 @@ public abstract class AbstractCachingUserManager implements UserManager {
     }
 
     @Override
-    public void changePassword(UserModificationData mutableUserModificationData) {
+    public User changePassword(UserModificationData userModificationData) {
+        User user = userManager.changePassword(userModificationData);
 
+        if (user != null) {
+            addUserToCache(user);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("[changePassword] user's password has been changed and put cache :: email={}", user.getEmail());
+            }
+        }
+
+        triggerEvents(userModificationData, user);
+        return user;
     }
 
     private void triggerEvents(UserModificationData sourceData, User user) {

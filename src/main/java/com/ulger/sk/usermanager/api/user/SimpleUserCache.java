@@ -2,6 +2,7 @@ package com.ulger.sk.usermanager.api.user;
 
 import com.ulger.sk.usermanager.api.user.manager.User;
 import com.ulger.sk.usermanager.cache.Cache;
+import com.ulger.sk.usermanager.cache.Cacheable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,22 +25,22 @@ public class SimpleUserCache implements Cache<User> {
 
     @Override
     public void add(User user) {
-        notNull(user.getId());
-        cache.put(user.getId(), user);
+        notNull(user.getCacheId());
+        cache.put(user.getCacheId(), user);
     }
 
     @Override
     public void add(Collection<User> values) {
         Map<Object, User> newValues = values
                 .stream()
-                .collect(Collectors.toMap(user -> user.getId(), user -> user));
+                .collect(Collectors.toMap(user -> user.getCacheId(), user -> user));
 
         cache.putAll(newValues);
     }
 
     @Override
-    public User get(Object id) {
-        return cache.get(id);
+    public User get(Object cacheId) {
+        return cache.get(cacheId);
     }
 
     @Override

@@ -59,7 +59,8 @@ public class UserDaoMock implements UserDao<Integer> {
         }
 
         if (users.stream().filter(filter).findFirst().isPresent()) {
-            return result.findFirst().get();
+            User user = result.findFirst().get();
+            return UserImp.newInstance(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getCredential());
         }
 
         return null;
