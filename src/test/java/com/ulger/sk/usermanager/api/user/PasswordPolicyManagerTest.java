@@ -48,8 +48,8 @@ public class PasswordPolicyManagerTest {
         assertFalse(result3.hasError());
         assertEquals(0, result3.getErrors().size());
 
-        assertEquals("Password is too short. Password should be at least " + MIN_PASS_LENGTH + " digits", result1.getErrors().iterator().next());
-        assertEquals("Password is too long. Password can not be longer than " + MAX_PASS_LENGTH + " digits", result2.getErrors().iterator().next());
+        assertEquals("Password should be at least " + MIN_PASS_LENGTH + " characters long", result1.getErrors().iterator().next());
+        assertEquals("Password can not be longer than " + MAX_PASS_LENGTH + " characters", result2.getErrors().iterator().next());
     }
 
     @Test
