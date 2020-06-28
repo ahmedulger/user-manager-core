@@ -120,7 +120,7 @@ public class DefaultUserManager implements UserManager {
             logger.debug("[getUserByEmail] Getting user with email :: email={}", email);
         }
 
-        notBlank(UserField.EMAIL, email);
+        notBlank(UserField.EMAIL.getName(), email);
 
         User user = userDao.findByEmail(email);
 
@@ -155,16 +155,25 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public User createUser(UserModificationData userModificationData) {
-        logger.info("[createUser] User is creating :: data={}", userModificationData);
-        notNull(userModificationData, "User creation data should not be null");
+    public User createUser(UserModificationData modificationData) {
+        logger.info("[createUser] User is creating :: data={}", modificationData);
+        notNull(modificationData, "User creation data should not be null");
 
-        MutableUserModificationData mutableUserModificationData = new MutableUserModificationData(userModificationData);
-        validate(mutableUserModificationData, DefaultUserValidationContext.OPERATION_CREATE);
+        MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
+        validate(mutableData, DefaultUserValidationContext.OPERATION_CREATE);
 
-        encryptPassword(mutableUserModificationData);
+        if (!Objects.isNull(mutableData.getId())) {
+            throw new IllegalArgumentException("Id can not be given to create user");
+        }
 
-        User user = createOrUpdateUser(mutableUserModificationData);
+        User user = userDao.findByEmail(modificationData.getEmail());
+        if (user != null) {
+            throw new IllegalParameterException("User is already exist with given email");
+        }
+
+        encryptPassword(mutableData);
+
+        user = createOrUpdateUser(mutableData);
         logger.info("[createUser] User has been created");
 
         return user;
@@ -215,6 +224,10 @@ public class DefaultUserManager implements UserManager {
                     mutableUserModificationData.getId() + " or email: " + mutableUserModificationData.getEmail());
         }
 
+        if (passwordEncoder.matches(userModificationData.getRawPassword(), user.getCredential())) {
+            throw new IllegalParameterException("You must specifiv");
+        }
+
         checkIfEmailChanged(userModificationData, user);
         encryptPassword(mutableUserModificationData);
         updateId(mutableUserModificationData, user.getId());
@@ -259,7 +272,7 @@ public class DefaultUserManager implements UserManager {
     }
 
     private String encryptPassword(String rawPassword) {
-        notBlank(UserField.PASSWORD, rawPassword);
+        notBlank(UserField.PASSWORD.getName(), rawPassword);
         return passwordEncoder.encode(rawPassword);
     }
 

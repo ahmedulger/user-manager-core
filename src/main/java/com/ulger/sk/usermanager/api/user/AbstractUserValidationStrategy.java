@@ -59,7 +59,7 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
 
         boolean validateEmailAddress() {
             if (StringUtils.isEmpty(userModificationData.getEmail())) {
-                addError(UserField.EMAIL, "You must specify email address");
+                addError(UserField.EMAIL, "You must specify an email address");
                 return false;
             }
 
