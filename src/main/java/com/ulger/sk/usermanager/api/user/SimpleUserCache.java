@@ -24,15 +24,15 @@ public class SimpleUserCache implements Cache<User> {
 
     @Override
     public void add(User user) {
-        notNull(user.getCacheId());
-        cache.put(user.getCacheId(), user);
+        notNull(user);
+        cache.put(user.getEmail(), user);
     }
 
     @Override
     public void add(Collection<User> values) {
         Map<Object, User> newValues = values
                 .stream()
-                .collect(Collectors.toMap(user -> user.getCacheId(), user -> user));
+                .collect(Collectors.toMap(user -> user.getEmail(), user -> user));
 
         cache.putAll(newValues);
     }

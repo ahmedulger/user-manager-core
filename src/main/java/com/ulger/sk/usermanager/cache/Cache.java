@@ -2,7 +2,7 @@ package com.ulger.sk.usermanager.cache;
 
 import java.util.Collection;
 
-public interface Cache<T extends Cacheable> {
+public interface Cache<T> {
 
     void add(T value);
 

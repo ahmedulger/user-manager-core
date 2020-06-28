@@ -32,7 +32,9 @@ dependencies {
     compile group: 'commons-validator', name: 'commons-validator', version:'1.6'
     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.30'
     compile group: 'commons-codec', name: 'commons-codec', version:'1.11'
-	
+
+    testCompile group: 'commons-io', name: 'commons-io', version: '2.7'
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     testCompile group: 'org.mockito', name: 'mockito-all', version:'1.10.19'
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
 }

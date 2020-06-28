@@ -29,11 +29,11 @@ public class SimpleUserCacheTest {
         cache = new SimpleUserCache();
 
         assertTrue(cache.getAll().isEmpty());
-        assertNull(cache.get(user1.getCacheId()));
-        assertNull(cache.get(user2.getCacheId()));
-        assertNull(cache.get(user3.getCacheId()));
-        assertNull(cache.get(user4.getCacheId()));
-        assertNull(cache.get(user1Copy.getCacheId()));
+        assertNull(cache.get(user1.getEmail()));
+        assertNull(cache.get(user2.getEmail()));
+        assertNull(cache.get(user3.getEmail()));
+        assertNull(cache.get(user4.getEmail()));
+        assertNull(cache.get(user1Copy.getEmail()));
     }
 
     @Test
@@ -44,51 +44,51 @@ public class SimpleUserCacheTest {
     @Test
     void test_adding() {
         cache.add(user1);
-        assertTrue(user1 == cache.get(user1.getCacheId()));
-        assertNull(cache.get(user2.getCacheId()));
+        assertTrue(user1 == cache.get(user1.getEmail()));
+        assertNull(cache.get(user2.getEmail()));
         assertEquals(1, cache.getAll().size());
 
         cache.add(user2);
-        assertTrue(user2 == cache.get(user2.getCacheId()));
+        assertTrue(user2 == cache.get(user2.getEmail()));
         assertEquals(2, cache.getAll().size());
 
         cache.add(Arrays.asList(user3, user4));
-        assertTrue(user3 == cache.get(user3.getCacheId()));
-        assertTrue(user4 == cache.get(user4.getCacheId()));
+        assertTrue(user3 == cache.get(user3.getEmail()));
+        assertTrue(user4 == cache.get(user4.getEmail()));
         assertEquals(4, cache.getAll().size());
     }
 
     @Test
     void test_overriding() {
         cache.add(user1);
-        assertTrue(user1 == cache.get(user1.getCacheId()));
+        assertTrue(user1 == cache.get(user1.getEmail()));
 
         cache.add(user1Copy);
-        assertEquals(user1.getEmail(), cache.get(user1.getCacheId()).getEmail());
-        assertNotEquals(user1.getFirstName(), cache.get(user1.getCacheId()).getFirstName());
-        assertNotEquals(user1.getLastName(), cache.get(user1.getCacheId()).getLastName());
+        assertEquals(user1.getEmail(), cache.get(user1.getEmail()).getEmail());
+        assertNotEquals(user1.getFirstName(), cache.get(user1.getEmail()).getFirstName());
+        assertNotEquals(user1.getLastName(), cache.get(user1.getEmail()).getLastName());
 
         cache.add(user1Copy);
-        assertEquals(user1Copy.getEmail(), cache.get(user1.getCacheId()).getEmail());
-        assertEquals(user1Copy.getFirstName(), cache.get(user1.getCacheId()).getFirstName());
-        assertEquals(user1Copy.getLastName(), cache.get(user1.getCacheId()).getLastName());
+        assertEquals(user1Copy.getEmail(), cache.get(user1.getEmail()).getEmail());
+        assertEquals(user1Copy.getFirstName(), cache.get(user1.getEmail()).getFirstName());
+        assertEquals(user1Copy.getLastName(), cache.get(user1.getEmail()).getLastName());
 
         cache.add(Arrays.asList(user2, user3));
         cache.add(Arrays.asList(user2Copy, user3Copy));
 
-        assertEquals(user2.getEmail(), cache.get(user2.getCacheId()).getEmail());
-        assertNotEquals(user2.getFirstName(), cache.get(user2.getCacheId()).getFirstName());
-        assertNotEquals(user2.getLastName(), cache.get(user2.getCacheId()).getLastName());
-        assertEquals(user2Copy.getEmail(), cache.get(user2.getCacheId()).getEmail());
-        assertEquals(user2Copy.getFirstName(), cache.get(user2.getCacheId()).getFirstName());
-        assertEquals(user2Copy.getLastName(), cache.get(user2.getCacheId()).getLastName());
+        assertEquals(user2.getEmail(), cache.get(user2.getEmail()).getEmail());
+        assertNotEquals(user2.getFirstName(), cache.get(user2.getEmail()).getFirstName());
+        assertNotEquals(user2.getLastName(), cache.get(user2.getEmail()).getLastName());
+        assertEquals(user2Copy.getEmail(), cache.get(user2.getEmail()).getEmail());
+        assertEquals(user2Copy.getFirstName(), cache.get(user2.getEmail()).getFirstName());
+        assertEquals(user2Copy.getLastName(), cache.get(user2.getEmail()).getLastName());
 
-        assertEquals(user3.getEmail(), cache.get(user3.getCacheId()).getEmail());
-        assertNotEquals(user3.getFirstName(), cache.get(user3.getCacheId()).getFirstName());
-        assertNotEquals(user3.getLastName(), cache.get(user3.getCacheId()).getLastName());
-        assertEquals(user3Copy.getEmail(), cache.get(user3.getCacheId()).getEmail());
-        assertEquals(user3Copy.getFirstName(), cache.get(user3.getCacheId()).getFirstName());
-        assertEquals(user3Copy.getLastName(), cache.get(user3.getCacheId()).getLastName());
+        assertEquals(user3.getEmail(), cache.get(user3.getEmail()).getEmail());
+        assertNotEquals(user3.getFirstName(), cache.get(user3.getEmail()).getFirstName());
+        assertNotEquals(user3.getLastName(), cache.get(user3.getEmail()).getLastName());
+        assertEquals(user3Copy.getEmail(), cache.get(user3.getEmail()).getEmail());
+        assertEquals(user3Copy.getFirstName(), cache.get(user3.getEmail()).getFirstName());
+        assertEquals(user3Copy.getLastName(), cache.get(user3.getEmail()).getLastName());
     }
 
     @Test
@@ -100,15 +100,15 @@ public class SimpleUserCacheTest {
         assertEquals(4, cache.getAll().size());
 
         user3Copy = Mockito.mock(User.class);
-        when(user3Copy.getCacheId()).thenReturn(null);
+        when(user3Copy.getEmail()).thenReturn(null);
 
         try {
             cache.add(Arrays.asList(user1Copy, user2Copy, user3Copy, user4Copy));
         } catch (Exception e) {
-            assertNotEquals(user1.getEmail(), cache.get(user1.getCacheId()).getEmail());
-            assertNotEquals(user2.getEmail(), cache.get(user2.getCacheId()).getEmail());
-            assertNotEquals(user3.getEmail(), cache.get(user3.getCacheId()).getEmail());
-            assertNotEquals(user4.getEmail(), cache.get(user4.getCacheId()).getEmail());
+            assertNotEquals(user1.getEmail(), cache.get(user1.getEmail()).getEmail());
+            assertNotEquals(user2.getEmail(), cache.get(user2.getEmail()).getEmail());
+            assertNotEquals(user3.getEmail(), cache.get(user3.getEmail()).getEmail());
+            assertNotEquals(user4.getEmail(), cache.get(user4.getEmail()).getEmail());
         }
     }
 
@@ -117,9 +117,9 @@ public class SimpleUserCacheTest {
         cache.add(user1);
 
         user2 = Mockito.mock(User.class);
-        when(user2.getCacheId()).thenReturn(null);
+        when(user2.getEmail()).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class, () -> cache.add(user2));
-        assertNull(cache.get(user2.getCacheId()));
+        assertNull(cache.get(user2.getEmail()));
     }
 }

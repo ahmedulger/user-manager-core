@@ -1,12 +1,11 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
-import com.ulger.sk.usermanager.cache.Cacheable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Objects;
 
-public class UserImp implements User, Cacheable {
+public class UserImp implements User {
 
     private final Object id;
     private final String email;
@@ -26,11 +25,6 @@ public class UserImp implements User, Cacheable {
 
     public static final UserImp newInstance(Object id, String email, String firstName, String lastName, String credential) {
         return new UserImp(id, email, firstName, lastName, credential);
-    }
-
-    @Override
-    public Object getCacheId() {
-        return email;
     }
 
     @Override

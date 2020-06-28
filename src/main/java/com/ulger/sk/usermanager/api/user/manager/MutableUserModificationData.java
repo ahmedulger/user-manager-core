@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * This class holds user data to update or save user.
  */
-public class MutableUserModificationData implements UserModificationData {
+public class MutableUserModificationData implements UserModificationData, User {
 
     private Object id;
     private String email;

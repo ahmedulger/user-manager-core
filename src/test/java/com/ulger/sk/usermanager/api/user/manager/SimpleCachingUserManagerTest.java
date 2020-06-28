@@ -18,7 +18,7 @@ public class SimpleCachingUserManagerTest {
     final MutableUserModificationData data4 = getModificationData("email4@gmail.com", "fn4", "ln4", "hpw4");
     final MutableUserModificationData data5 = getModificationData("email5@gmail.com", "fn5", "ln5", "hpw5");
 
-    private UserDaoMock userDao;
+    private UserDao userDao;
     private PasswordEncoder passwordEncoder;
     private PasswordPolicyManager passwordPolicyManager;
     private UserManager defaultUserManager;
@@ -26,7 +26,7 @@ public class SimpleCachingUserManagerTest {
 
     @BeforeEach
     void setUp() {
-        this.userDao = new UserDaoMock();
+        this.userDao = new UserDaoH2();
         this.passwordEncoder = Mockito.mock(PasswordEncoder.class);
         this.passwordPolicyManager = new DefaultPasswordPolicyManager();
         this.defaultUserManager = new DefaultUserManager(passwordEncoder, passwordPolicyManager, userDao);

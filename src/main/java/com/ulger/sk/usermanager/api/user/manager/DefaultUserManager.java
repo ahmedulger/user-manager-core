@@ -3,7 +3,6 @@ package com.ulger.sk.usermanager.api.user.manager;
 import com.ulger.sk.usermanager.api.user.*;
 import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
-import com.ulger.sk.usermanager.api.user.ValidationException;
 import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
 import com.ulger.sk.usermanager.localization.I18NHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.ulger.sk.usermanager.SkAssertions.notBlank;
@@ -28,7 +30,6 @@ public class DefaultUserManager implements UserManager {
 
     private DefaultUserValidationContext defaultUserValidationContext;
     private PasswordEncoder passwordEncoder;
-    private UserEntityBuilder userEntityBuilder;
     private UserDao userDao;
     private I18NHelper i18NHelper;
     private Collection<UserModificationEventListener> modificationEventListeners;
@@ -57,21 +58,6 @@ public class DefaultUserManager implements UserManager {
     }
 
     /**
-     * Constructs instance with UserDao and {@link UserEntityBuilder} parameter.
-     * @param userEntityBuilder is useful to save waste converting operation between type of {@link User}
-     *                          {@link UserDao} uses a {@link User} instance to save data to the source.
-     *                          If no userEntityBuilder given than this manager passes {@link UserImp} to {@link UserDao}.
-     *                          But if you give a {@link UserEntityBuilder} that creates a {@link User} directly without
-     *                          unnecessary converting operation.
-     * @param userDao
-     */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserEntityBuilder userEntityBuilder, UserDao userDao, I18NHelper i18nHelper) {
-        this(passwordEncoder, passwordPolicyManager, userDao, i18nHelper);
-        this.userEntityBuilder = userEntityBuilder;
-        init();
-    }
-
-    /**
      * Constructs instance with UserDao.
      * If no event listener given than any events will be published after user modification
      * @param userDao
@@ -79,24 +65,6 @@ public class DefaultUserManager implements UserManager {
      */
     public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao, Collection<UserModificationEventListener> modificationEventListeners, I18NHelper i18nHelper) {
         this(passwordEncoder, passwordPolicyManager, userDao, i18nHelper);
-        this.modificationEventListeners = modificationEventListeners;
-        init();
-    }
-
-    /**
-     * Constructs instance with UserDao.
-     * If no event listener given than any events will be published after user modification
-     *
-     * @param userEntityBuilder is useful to save waste converting operation between type of {@link User}
-     *                        {@link UserDao} uses a {@link User} instance to save data to the source.
-     *                        If no userEntityBuilder given than this manager passes {@link UserImp} to {@link UserDao}.
-     *                        But if you give a {@link UserEntityBuilder} that creates a {@link User} directly without
-     *                        unnecessary converting operation.
-     * @param userDao
-     * @param modificationEventListeners
-     */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserEntityBuilder userEntityBuilder, UserDao userDao, I18NHelper i18nHelper, Collection<UserModificationEventListener> modificationEventListeners) {
-        this(passwordEncoder, passwordPolicyManager, userEntityBuilder, userDao, i18nHelper);
         this.modificationEventListeners = modificationEventListeners;
         init();
     }
@@ -298,34 +266,12 @@ public class DefaultUserManager implements UserManager {
     private User createOrUpdateUser(MutableUserModificationData modificationData) {
         logger.info("[createOrUpdateUser] User is saving :: data={}", modificationData);
 
-        User user;
-
-        if (userEntityBuilder == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("[createOrUpdateUser] No entity builder found, using default");
-            }
-
-            user = createInstanceByModificationData(modificationData);
-        } else {
-            user = userEntityBuilder.build(modificationData);
-        }
-
-        user = userDao.save(user);
+        User user = userDao.save(modificationData);
         logger.info("[createOrUpdateUser] User has been saved");
 
         triggerEvents(modificationData, user);
 
         return user;
-    }
-
-    private UserImp createInstanceByModificationData(MutableUserModificationData userModificationData) {
-        return UserImp.Builder.anUserImp()
-                .withId(userModificationData.getId())
-                .withEmail(userModificationData.getEmail())
-                .withFirstName(userModificationData.getFirstName())
-                .withLastName(userModificationData.getLastName())
-                .withCredential(userModificationData.getCredential())
-                .build();
     }
 
     private void triggerEvents(UserModificationData sourceData, User user) {
@@ -363,7 +309,6 @@ public class DefaultUserManager implements UserManager {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
                 .append("defaultUserValidationContext", defaultUserValidationContext)
                 .append("passwordEncoder", passwordEncoder)
-                .append("userEntityBuilder", userEntityBuilder)
                 .append("userDao", userDao)
                 .append("modificationEventListeners", modificationEventListeners)
                 .toString();

@@ -1,11 +1,9 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
-import com.ulger.sk.usermanager.cache.Cacheable;
-
 /**
  * Represents a person of system
  */
-public interface User extends Cacheable {
+public interface User {
 
     /**
      * A unique numeric identifier of User.
