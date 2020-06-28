@@ -2,6 +2,8 @@ package com.ulger.sk.usermanager.api.user;
 
 import com.ulger.sk.usermanager.api.user.manager.UserField;
 import com.ulger.sk.usermanager.api.user.manager.UserModificationData;
+import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
+import com.ulger.sk.usermanager.localization.I18NHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -17,10 +19,25 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
 
     private EmailValidator emailValidator;
     private PasswordPolicyManager passwordPolicyManager;
+    private I18NHelper i18NHelper;
 
     public AbstractUserValidationStrategy(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager) {
         this.emailValidator = emailValidator;
         this.passwordPolicyManager = passwordPolicyManager;
+        init();
+    }
+
+    public AbstractUserValidationStrategy(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager, I18NHelper i18NHelper) {
+        this(emailValidator, passwordPolicyManager);
+        this.i18NHelper = i18NHelper;
+        init();
+    }
+
+    private void init() {
+        if (this.i18NHelper == null) {
+            logger.warn("[init] I18NHelper implementation not found, initializing with DefaultI18NHelper");
+            this.i18NHelper = new DefaultI18NHelper();
+        }
     }
 
     protected final Validator createValidationHepler(UserModificationData userModificationData) {
@@ -28,12 +45,12 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
     }
 
     final class Validator {
-        private UserModificationData userModificationData;
+        private UserModificationData modificationData;
         private UserValidationResult validationResult;
 
-        Validator(UserModificationData userModificationData) {
-            notNull(userModificationData);
-            this.userModificationData = userModificationData;
+        Validator(UserModificationData modificationData) {
+            notNull(modificationData);
+            this.modificationData = modificationData;
             this.validationResult = new UserValidationResult();
         }
 
@@ -58,13 +75,13 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
         }
 
         boolean validateEmailAddress() {
-            if (StringUtils.isEmpty(userModificationData.getEmail())) {
-                addError(UserField.EMAIL, "You must specify an email address");
+            if (StringUtils.isEmpty(modificationData.getEmail())) {
+                addError(UserField.EMAIL, i18NHelper.getMessage("validation.email.blank"));
                 return false;
             }
 
-            if (!emailValidator.isValid(userModificationData.getEmail())) {
-                addError(UserField.EMAIL, "You must specify a valid email address");
+            if (!emailValidator.isValid(modificationData.getEmail())) {
+                addError(UserField.EMAIL, i18NHelper.getMessage("validation.email.invalid", modificationData.getEmail()));
                 return false;
             }
 
@@ -77,8 +94,8 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
         }
 
         boolean validatePassword() {
-            if (StringUtils.isEmpty(userModificationData.getRawPassword())) {
-                addError(UserField.PASSWORD, "You must specify a password");
+            if (StringUtils.isEmpty(modificationData.getRawPassword())) {
+                addError(UserField.PASSWORD, i18NHelper.getMessage("validation.password.blank"));
                 return false;
             }
 
@@ -86,10 +103,10 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
         }
 
         boolean validatePasswordPolicy() {
-            String password = userModificationData.getRawPassword();
+            String password = modificationData.getRawPassword();
             PasswordCheckingResult passwordCheckingResult = passwordPolicyManager.checkPolicy(password);
             if (passwordCheckingResult.hasError()) {
-                addError(UserField.PASSWORD, "You must specify a valid password");
+                addError(UserField.PASSWORD, i18NHelper.getMessage("validation.password.invalid"));
                 return false;
             }
 
@@ -97,16 +114,16 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
         }
 
         boolean validateUserName() {
-            String firstName = userModificationData.getFirstName();
-            String lastName = userModificationData.getLastName();
+            String firstName = modificationData.getFirstName();
+            String lastName = modificationData.getLastName();
 
             if (StringUtils.isBlank(firstName)) {
-                addError(UserField.FIRST_NAME, "You must specify your name");
+                addError(UserField.FIRST_NAME, i18NHelper.getMessage("validation.firstname.blank"));
                 return false;
             }
 
             if (StringUtils.isBlank(lastName)) {
-                addError(UserField.LAST_NAME, "You must specify your last name");
+                addError(UserField.LAST_NAME, i18NHelper.getMessage("validation.lastname.blank"));
                 return false;
             }
 

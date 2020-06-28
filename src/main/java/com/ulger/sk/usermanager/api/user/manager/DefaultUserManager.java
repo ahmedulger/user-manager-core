@@ -4,6 +4,8 @@ import com.ulger.sk.usermanager.api.user.*;
 import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
 import com.ulger.sk.usermanager.api.user.ValidationException;
+import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
+import com.ulger.sk.usermanager.localization.I18NHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -11,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.ulger.sk.usermanager.SkAssertions.notBlank;
@@ -31,6 +30,7 @@ public class DefaultUserManager implements UserManager {
     private PasswordEncoder passwordEncoder;
     private UserEntityBuilder userEntityBuilder;
     private UserDao userDao;
+    private I18NHelper i18NHelper;
     private Collection<UserModificationEventListener> modificationEventListeners;
 
     /**
@@ -46,6 +46,17 @@ public class DefaultUserManager implements UserManager {
     }
 
     /**
+     * Constructs instance with UserDao.
+     * If no event listener given than any events will be published after user modification
+     * @param userDao
+     */
+    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao, I18NHelper i18nHelper) {
+        this(passwordEncoder, passwordPolicyManager, userDao);
+        this.i18NHelper = i18nHelper;
+        init();
+    }
+
+    /**
      * Constructs instance with UserDao and {@link UserEntityBuilder} parameter.
      * @param userEntityBuilder is useful to save waste converting operation between type of {@link User}
      *                          {@link UserDao} uses a {@link User} instance to save data to the source.
@@ -54,11 +65,9 @@ public class DefaultUserManager implements UserManager {
      *                          unnecessary converting operation.
      * @param userDao
      */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserEntityBuilder userEntityBuilder, UserDao userDao) {
-        this.defaultUserValidationContext = new DefaultUserValidationContext(passwordPolicyManager);
-        this.passwordEncoder = passwordEncoder;
+    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserEntityBuilder userEntityBuilder, UserDao userDao, I18NHelper i18nHelper) {
+        this(passwordEncoder, passwordPolicyManager, userDao, i18nHelper);
         this.userEntityBuilder = userEntityBuilder;
-        this.userDao = userDao;
         init();
     }
 
@@ -68,10 +77,8 @@ public class DefaultUserManager implements UserManager {
      * @param userDao
      * @param modificationEventListeners
      */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao, Collection<UserModificationEventListener> modificationEventListeners) {
-        this.defaultUserValidationContext = new DefaultUserValidationContext(passwordPolicyManager);
-        this.passwordEncoder = passwordEncoder;
-        this.userDao = userDao;
+    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao, Collection<UserModificationEventListener> modificationEventListeners, I18NHelper i18nHelper) {
+        this(passwordEncoder, passwordPolicyManager, userDao, i18nHelper);
         this.modificationEventListeners = modificationEventListeners;
         init();
     }
@@ -88,11 +95,8 @@ public class DefaultUserManager implements UserManager {
      * @param userDao
      * @param modificationEventListeners
      */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserEntityBuilder userEntityBuilder, UserDao userDao, Collection<UserModificationEventListener> modificationEventListeners) {
-        this.defaultUserValidationContext = new DefaultUserValidationContext(passwordPolicyManager);
-        this.passwordEncoder = passwordEncoder;
-        this.userEntityBuilder = userEntityBuilder;
-        this.userDao = userDao;
+    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserEntityBuilder userEntityBuilder, UserDao userDao, I18NHelper i18nHelper, Collection<UserModificationEventListener> modificationEventListeners) {
+        this(passwordEncoder, passwordPolicyManager, userEntityBuilder, userDao, i18nHelper);
         this.modificationEventListeners = modificationEventListeners;
         init();
     }
@@ -106,6 +110,11 @@ public class DefaultUserManager implements UserManager {
         if (this.modificationEventListeners == null) {
             logger.warn("[init] No modification listener found");
             this.modificationEventListeners = new LinkedList<>();
+        }
+
+        if (this.i18NHelper == null) {
+            logger.warn("[init] I18NHelper implementation not found, initializing with DefaultI18NHelper");
+            this.i18NHelper = new DefaultI18NHelper();
         }
     }
 
@@ -168,7 +177,7 @@ public class DefaultUserManager implements UserManager {
 
         User user = userDao.findByEmail(modificationData.getEmail());
         if (user != null) {
-            throw new IllegalParameterException("User is already exist with given email");
+            throw new IllegalParameterException(i18NHelper.getMessage("operation.create.user.exist", modificationData.getEmail()));
         }
 
         encryptPassword(mutableData);
@@ -180,59 +189,60 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public User updateUser(UserModificationData userModificationData) {
-        logger.info("[updateUser] User is updating :: data={}", userModificationData);
-        notNull(userModificationData, "User update data should not be null");
+    public User updateUser(UserModificationData modificationData) {
+        logger.info("[updateUser] User is updating :: data={}", modificationData);
+        notNull(modificationData, "User update data should not be null");
 
-        MutableUserModificationData mutableUserModificationData = new MutableUserModificationData(userModificationData);
-        validate(mutableUserModificationData, DefaultUserValidationContext.OPERATION_UPDATE);
+        MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
+        validate(mutableData, DefaultUserValidationContext.OPERATION_UPDATE);
 
-        if (Objects.isNull(mutableUserModificationData.getId()) && StringUtils.isBlank(mutableUserModificationData.getEmail())) {
-            throw new IllegalParameterException("id or email should be given to update operation");
+        if (Objects.isNull(mutableData.getId()) && StringUtils.isBlank(mutableData.getEmail())) {
+            logger.error("[updateUser] email and id booth null");
+            throw new IllegalParameterException(i18NHelper.getMessage("operation.update.parameter.email.id.blank"));
         }
 
-        User user = getUserByIdOrEmail(userModificationData);
+        User user = getUserByIdOrEmail(modificationData);
         if (user == null) {
-            throw new UserNotFoundException("User not found with id: " +
-                    mutableUserModificationData.getId() + " or email: " + mutableUserModificationData.getEmail());
+            logger.error("[updateUser] User not found :: email={}, id={}", modificationData.getEmail(), modificationData.getId());
+            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", modificationData.getEmail(), modificationData.getId()));
         }
 
-        checkIfEmailChanged(userModificationData, user);
-        updateId(mutableUserModificationData, user.getId());
+        checkIfEmailChanged(modificationData, user);
+        updateId(mutableData, user.getId());
 
-        user = createOrUpdateUser(mutableUserModificationData);
+        user = createOrUpdateUser(mutableData);
         logger.info("[updateUser] User has been updated :: email={}", user.getEmail());
 
         return user;
     }
 
     @Override
-    public User changePassword(UserModificationData userModificationData) {
-        logger.info("[changePassword] User's password is updating :: data={}", userModificationData);
-        notNull(userModificationData, "User update data should not be null");
+    public User changePassword(UserModificationData modificationData) {
+        logger.info("[changePassword] User's password is updating :: data={}", modificationData);
+        notNull(modificationData);
 
-        MutableUserModificationData mutableUserModificationData = new MutableUserModificationData(userModificationData);
-        validate(mutableUserModificationData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
+        MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
+        validate(mutableData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
 
-        if (Objects.isNull(mutableUserModificationData.getId()) && StringUtils.isBlank(mutableUserModificationData.getEmail())) {
-            throw new IllegalParameterException("id or email should be given to change password");
+        if (Objects.isNull(mutableData.getId()) && StringUtils.isBlank(mutableData.getEmail())) {
+            logger.error("[updateUser] email and id booth null");
+            throw new IllegalParameterException(i18NHelper.getMessage("operation.update.parameter.email.id.blank"));
         }
 
-        User user = getUserByIdOrEmail(userModificationData);
+        User user = getUserByIdOrEmail(modificationData);
         if (user == null) {
-            throw new UserNotFoundException("User not found with id: " +
-                    mutableUserModificationData.getId() + " or email: " + mutableUserModificationData.getEmail());
+            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", modificationData.getEmail(), modificationData.getId()));
         }
 
-        if (passwordEncoder.matches(userModificationData.getRawPassword(), user.getCredential())) {
-            throw new IllegalParameterException("You must specifiv");
+        if (passwordEncoder.matches(modificationData.getRawPassword(), user.getCredential())) {
+            throw new IllegalParameterException(i18NHelper.getMessage("operation.password.change.same"));
         }
 
-        checkIfEmailChanged(userModificationData, user);
-        encryptPassword(mutableUserModificationData);
-        updateId(mutableUserModificationData, user.getId());
+        checkIfEmailChanged(modificationData, user);
+        encryptPassword(mutableData);
+        updateId(mutableData, user.getId());
 
-        user = createOrUpdateUser(mutableUserModificationData);
+        user = createOrUpdateUser(mutableData);
         logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
         return user;
     }
@@ -259,7 +269,7 @@ public class DefaultUserManager implements UserManager {
                 !StringUtils.isBlank(userModificationData.getEmail()) &&
                 !userModificationData.getEmail().equals(user.getEmail())) {
 
-            throw new ApiException("Email is one of none-updatable fields");
+            throw new ApiException(i18NHelper.getMessage("operation.email.edit.no.permission"));
         }
     }
 
