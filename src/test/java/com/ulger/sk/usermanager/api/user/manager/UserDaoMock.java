@@ -52,6 +52,9 @@ public class UserDaoMock implements UserDao<Integer> {
     }
 
     private User getAsUniqueUser(User user) {
+        if (user == null)
+            return null;
+
         return UserImp.newInstance(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getCredential());
     }
 
