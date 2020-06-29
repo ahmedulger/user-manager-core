@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class ChangePasswordValidationStrategy extends AbstractUserValidationStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(UpdateUserValidationStrategy.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChangePasswordValidationStrategy.class);
 
     public ChangePasswordValidationStrategy(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager) {
         super(emailValidator, passwordPolicyManager);

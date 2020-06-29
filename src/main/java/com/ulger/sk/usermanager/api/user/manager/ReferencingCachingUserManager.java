@@ -14,7 +14,6 @@ public class ReferencingCachingUserManager extends AbstractCachingUserManager {
     private static final Logger logger = LoggerFactory.getLogger(ReferencingCachingUserManager.class);
 
     private Cache<User> userCache;
-    private Collection<UserModificationEventListener> modificationEventListeners;
 
     public ReferencingCachingUserManager(UserManager userManager, Cache<User> userCache) {
         super(userManager);
@@ -28,7 +27,7 @@ public class ReferencingCachingUserManager extends AbstractCachingUserManager {
         init();
     }
 
-    private final void init() {
+    private void init() {
         if (userCache == null) {
             logger.error("[ReferencingCachingUserManager] requires a user cache manager]");
             throw new IllegalArgumentException("ReferencingCachingUserManager requires a user cache manager");

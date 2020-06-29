@@ -12,7 +12,7 @@ public class SimplePasswordCheckingResult implements PasswordCheckingResult {
     private List<String> errors;
 
     public SimplePasswordCheckingResult() {
-        this.errors = new LinkedList();
+        this.errors = new LinkedList<>();
     }
 
     @Override

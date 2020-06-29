@@ -123,11 +123,6 @@ public class DefaultUserManager implements UserManager {
             logger.debug("[getAllUsers] found user count :: count={}", allUsers.size());
         }
 
-       /* return allUsers
-                .stream()
-                .map((entity) -> convertEntity(entity))
-                .collect(Collectors.toList());*/
-
         return allUsers;
     }
 

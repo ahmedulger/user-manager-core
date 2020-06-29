@@ -74,7 +74,7 @@ public class MutableUserModificationData implements UserModificationData, User {
     }
 
     public String getCredential() {
-        return hashPassword;
+        return getHashPassword();
     }
 
     public String getHashPassword() {

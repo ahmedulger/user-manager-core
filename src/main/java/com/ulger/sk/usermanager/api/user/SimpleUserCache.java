@@ -32,7 +32,7 @@ public class SimpleUserCache implements Cache<User> {
     public void add(Collection<User> values) {
         Map<Object, User> newValues = values
                 .stream()
-                .collect(Collectors.toMap(user -> user.getEmail(), user -> user));
+                .collect(Collectors.toMap(User::getEmail, user -> user));
 
         cache.putAll(newValues);
     }

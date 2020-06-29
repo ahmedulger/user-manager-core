@@ -40,7 +40,7 @@ public class DefaultUserValidationContext {
 
     public UserValidationResult validate(UserModificationData userModificationData, Integer operationId) {
         if (logger.isDebugEnabled()) {
-            logger.debug("[validate] Validation operation started :: userData={}, operationId={]", userModificationData, operationId);
+            logger.debug("[validate] Validation operation started :: userData={}, operationId={}", userModificationData, operationId);
         }
 
         UserValidationStrategy strategy = validationStrategies.get(operationId);

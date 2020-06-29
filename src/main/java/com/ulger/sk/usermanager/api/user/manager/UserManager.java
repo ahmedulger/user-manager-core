@@ -32,7 +32,7 @@ public interface UserManager {
      * @return Created {@link User} data
      * @throws ValidationException when given data is not valid
      * */
-    User createUser(UserModificationData userModificationData) throws ValidationException;
+    User createUser(UserModificationData userModificationData);
 
     /**
      * Returns a {@link User} object updated by using modification data that is given as parameter
@@ -44,7 +44,7 @@ public interface UserManager {
      * @throws ValidationException when given data is not valid
      * @throws UserNotFoundException if no user found with given email or id
      */
-    User updateUser(UserModificationData userModificationData) throws ValidationException;
+    User updateUser(UserModificationData userModificationData);
 
     /**
      * Changes users password
@@ -54,5 +54,5 @@ public interface UserManager {
      * @throws UserNotFoundException if no user found with given email or id
      * @return Updated {@link User} data
      */
-    User changePassword(UserModificationData userModificationData) throws ValidationException;
+    User changePassword(UserModificationData userModificationData);
 }

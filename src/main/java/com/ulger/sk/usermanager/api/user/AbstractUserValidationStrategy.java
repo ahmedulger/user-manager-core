@@ -54,19 +54,11 @@ public abstract class AbstractUserValidationStrategy implements UserValidationSt
             this.validationResult = new UserValidationResult();
         }
 
-        private void addError(String field, Object value, String message) {
-            validationResult.getErrorCollection().addError(field, message);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("[addError] Field is invalid :: field={}, value={}, message={}", field, value, message);
-            }
-        }
-
         private void addError(UserField field, String message) {
             validationResult.getErrorCollection().addError(field.getName(), message);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("[addError] Field is invalid :: field={}, message={]", field, message);
+                logger.debug("[addError] Field is invalid :: field={}, message={}", field, message);
             }
         }
 

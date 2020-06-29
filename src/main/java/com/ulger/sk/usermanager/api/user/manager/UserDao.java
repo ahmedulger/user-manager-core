@@ -15,9 +15,8 @@ public interface UserDao<T> {
      *
      * @param id, the id of User
      * @return {@link User}
-     * @throws DataAccessException when anny error occurred on data source
      */
-    User findById(T id) throws DataAccessException;
+    User findById(T id);
 
     /**
      * Searches and returns {@link User} whose email is given email value
@@ -26,7 +25,7 @@ public interface UserDao<T> {
      * @return {@link User}
      * @throws DataAccessException when anny error occurred on data source
      */
-    User findByEmail(String email) throws DataAccessException;
+    User findByEmail(String email);
 
     /**
      * Searches and returns all {@link User} list
@@ -34,7 +33,7 @@ public interface UserDao<T> {
      * @return empty list if no data found. Returning user list is new list or immutable list.
      * @throws DataAccessException when anny error occurred on data source
      */
-    List<User> find() throws DataAccessException;
+    List<User> find();
 
     /**
      * Saves given {@link User} object.
@@ -43,5 +42,5 @@ public interface UserDao<T> {
      * @return created or updated instance
      * @throws DataAccessException when anny error occurred on data source
      */
-    User save(User user) throws DataAccessException;
+    User save(User user);
 }

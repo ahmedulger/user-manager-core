@@ -45,7 +45,7 @@ public class SimpleErrorCollection implements ErrorCollection {
 
     @Override
     public void setErrorMessages(Collection<String> errorMessages) {
-        this.errorMessages = new ArrayList<String>(errorMessages);
+        this.errorMessages = new ArrayList<>(errorMessages);
     }
 
     @Override

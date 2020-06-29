@@ -4,7 +4,6 @@ import com.ulger.sk.usermanager.api.user.*;
 import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.TestReasonException;
-import com.ulger.sk.usermanager.api.user.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

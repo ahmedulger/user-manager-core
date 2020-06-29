@@ -66,7 +66,8 @@ public class UserImp implements User {
             return hashCode;
         }
 
-        return this.hashCode = Objects.hash(id);
+        hashCode = Objects.hash(id);
+        return hashCode;
     }
 
     @Override
@@ -119,8 +120,7 @@ public class UserImp implements User {
         }
 
         public UserImp build() {
-            UserImp userImp = new UserImp(id, email, firstName, lastName, credential);
-            return userImp;
+            return new UserImp(id, email, firstName, lastName, credential);
         }
     }
 }

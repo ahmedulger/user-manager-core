@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractCachingUserManager implements UserManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleCachingUserManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractCachingUserManager.class);
 
     private Map<String, User> userCache;
     private UserManager userManager;
