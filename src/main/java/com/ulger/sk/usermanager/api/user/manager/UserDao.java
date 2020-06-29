@@ -23,7 +23,6 @@ public interface UserDao<T> {
      *
      * @param email, the email of User
      * @return {@link User}
-     * @throws DataAccessException when anny error occurred on data source
      */
     User findByEmail(String email);
 
@@ -31,7 +30,6 @@ public interface UserDao<T> {
      * Searches and returns all {@link User} list
      *
      * @return empty list if no data found. Returning user list is new list or immutable list.
-     * @throws DataAccessException when anny error occurred on data source
      */
     List<User> find();
 
@@ -40,7 +38,6 @@ public interface UserDao<T> {
      * If id is given than updates, if not than tries to create new instance
      * @param user
      * @return created or updated instance
-     * @throws DataAccessException when anny error occurred on data source
      */
     User save(User user);
 }
