@@ -114,12 +114,8 @@ public class SimpleUserCacheTest {
 
     @Test
     void adding_single_value_fail_case() {
-        cache.add(user1);
-
-        user2 = Mockito.mock(User.class);
-        when(user2.getEmail()).thenReturn(null);
-
-        assertThrows(IllegalArgumentException.class, () -> cache.add(user2));
+        user1 = null;
+        assertThrows(IllegalArgumentException.class, () -> cache.add(user1));
         assertNull(cache.get(user2.getEmail()));
     }
 }
