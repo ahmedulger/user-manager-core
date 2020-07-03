@@ -1,11 +1,9 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
 import com.ulger.sk.usermanager.api.user.*;
-import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
 import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
 import com.ulger.sk.usermanager.localization.I18NHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -134,21 +132,9 @@ public class DefaultUserManager implements UserManager {
         MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
         validate(mutableData, DefaultUserValidationContext.OPERATION_CREATE);
 
-        if (!Objects.isNull(mutableData.getId())) {
-            throw new IllegalArgumentException("Id can not be given to create user");
-        }
-
-        User user = userDao.findByEmail(modificationData.getEmail());
-        if (user != null) {
-            throw new IllegalParameterException(i18NHelper.getMessage("operation.create.user.exist", modificationData.getEmail()));
-        }
-
         encryptPassword(mutableData);
 
-        user = createOrUpdateUser(mutableData);
-        logger.info("[createUser] User has been created");
-
-        return user;
+        return createOrUpdateUser(mutableData);
     }
 
     @Override
@@ -159,20 +145,13 @@ public class DefaultUserManager implements UserManager {
         MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
         validate(mutableData, DefaultUserValidationContext.OPERATION_UPDATE);
 
-        if (Objects.isNull(mutableData.getId()) && StringUtils.isBlank(mutableData.getEmail())) {
-            logger.error("[updateUser] email and id booth null");
-            throw new IllegalParameterException(i18NHelper.getMessage("operation.update.parameter.email.id.blank"));
-        }
-
-        User user = getUserByIdOrEmail(modificationData);
+        User user = getUserById(modificationData);
         if (user == null) {
             logger.error("[updateUser] User not found :: email={}, id={}", modificationData.getEmail(), modificationData.getId());
             throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", modificationData.getEmail(), modificationData.getId()));
         }
 
-        checkIfEmailChanged(modificationData, user);
         updateId(mutableData, user.getId());
-
         user = createOrUpdateUser(mutableData);
         logger.info("[updateUser] User has been updated :: email={}", user.getEmail());
 
@@ -187,12 +166,7 @@ public class DefaultUserManager implements UserManager {
         MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
         validate(mutableData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
 
-        if (Objects.isNull(mutableData.getId()) && StringUtils.isBlank(mutableData.getEmail())) {
-            logger.error("[updateUser] email and id booth null");
-            throw new IllegalParameterException(i18NHelper.getMessage("operation.update.parameter.email.id.blank"));
-        }
-
-        User user = getUserByIdOrEmail(modificationData);
+        User user = getUserById(modificationData);
         if (user == null) {
             throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", modificationData.getEmail(), modificationData.getId()));
         }
@@ -201,7 +175,6 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalParameterException(i18NHelper.getMessage("operation.password.change.same"));
         }
 
-        checkIfEmailChanged(modificationData, user);
         encryptPassword(mutableData);
         updateId(mutableData, user.getId());
 
@@ -219,21 +192,8 @@ public class DefaultUserManager implements UserManager {
         logger.info("[addEventListener] New event listener has been added");
     }
 
-    private User getUserByIdOrEmail(UserModificationData userModificationData) {
-        if (!Objects.isNull(userModificationData.getId())) {
-            return userDao.findById(userModificationData.getId());
-        }
-
-        return userDao.findByEmail(userModificationData.getEmail());
-    }
-
-    private void checkIfEmailChanged(UserModificationData userModificationData, User user) {
-        if (!Objects.isNull(userModificationData.getId()) &&
-                !StringUtils.isBlank(userModificationData.getEmail()) &&
-                !userModificationData.getEmail().equals(user.getEmail())) {
-
-            throw new ApiException(i18NHelper.getMessage("operation.email.edit.no.permission"));
-        }
+    private User getUserById(UserModificationData userModificationData) {
+        return userDao.findById(userModificationData.getId());
     }
 
     private void updateId(MutableUserModificationData data, Object id) {

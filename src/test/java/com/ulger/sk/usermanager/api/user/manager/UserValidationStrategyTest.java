@@ -1,6 +1,7 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
-import com.ulger.sk.usermanager.api.user.*;
+import com.ulger.sk.usermanager.api.user.DefaultPasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.PasswordPolicyManager;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AbstractUserValidationStrategyTest {
+public class UserValidationStrategyTest {
 
     private EmailValidator emailValidator;
     private PasswordPolicyManager passwordPolicyManager;
-    private AbstractUserValidationStrategy validationStrategy;
+    private UserValidationStrategy validationStrategy;
 
     @BeforeEach
     void setUp() {

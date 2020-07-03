@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user;
 
-import com.ulger.sk.usermanager.api.user.manager.UserModificationData;
+import com.ulger.sk.usermanager.api.user.manager.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -28,7 +28,7 @@ public class DefaultUserValidationContext {
         this.validationStrategies = new HashMap<>();
         this.validationStrategies.put(OPERATION_CREATE, new CreateUserValidationStrategy(emailValidator, passwordPolicyManager));
         this.validationStrategies.put(OPERATION_UPDATE, new UpdateUserValidationStrategy(emailValidator, passwordPolicyManager));
-        this.validationStrategies.put(OPERATION_CHANGE_PASSWORD, new ChangePasswordValidationStrategy(emailValidator, passwordPolicyManager));
+        this.validationStrategies.put(OPERATION_CHANGE_PASSWORD, new ChangePasswordValidationStrategy(passwordPolicyManager));
 
         logger.info("[DefaultUserValidationContext] UserValidationContext has loaded successfully :: context={}", this);
     }

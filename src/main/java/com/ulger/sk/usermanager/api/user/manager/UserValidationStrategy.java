@@ -1,6 +1,6 @@
-package com.ulger.sk.usermanager.api.user;
+package com.ulger.sk.usermanager.api.user.manager;
 
-import com.ulger.sk.usermanager.api.user.manager.UserModificationData;
+import com.ulger.sk.usermanager.api.user.UserValidationResult;
 
 /**
  * The implementations of this interface are responsible for user validation operations

@@ -1,7 +1,5 @@
 package com.ulger.sk.usermanager.api.user.manager;
 
-import com.ulger.sk.usermanager.exception.DataAccessException;
-
 import java.util.List;
 
 /**

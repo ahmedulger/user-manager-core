@@ -3,7 +3,6 @@ package com.ulger.sk.usermanager.api.user.manager;
 import com.ulger.sk.usermanager.api.user.DefaultUserValidationContext;
 import com.ulger.sk.usermanager.api.user.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.SimplePasswordCheckingResult;
-import com.ulger.sk.usermanager.api.user.UserValidationStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
