@@ -178,7 +178,8 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalParameterException(UserField.USERNAME.getName(), "Id should be given");
         }
 
-        // MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
+        MutableUserModificationData mutableData = new MutableUserModificationData();
+        mutableData.setUsername(username);
         // validate(mutableData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
 
         User user = userDao.findByUsername(username);
@@ -189,6 +190,7 @@ public class DefaultUserManager implements UserManager {
         if (passwordEncoder.matches(oldPassword, user.getCredential())) {
             throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
         }
+
 
         // Update user's raw password to the hashed password
         encryptPassword(mutableData);
@@ -210,10 +212,10 @@ public class DefaultUserManager implements UserManager {
 
     private void encryptPassword(MutableUserModificationData mutableUserModificationData) {
         logger.info("[encryptPassword] encrypting user password");
-        mutableUserModificationData.setHashPassword(encryptPassword(mutableUserModificationData.getRawPassword()));
+        mutableUserModificationData.setHashPassword(encryptRawPassword(mutableUserModificationData.getRawPassword()));
     }
 
-    private String encryptPassword(String rawPassword) {
+    private String encryptRawPassword(String rawPassword) {
         notBlank(UserField.PASSWORD.getName(), rawPassword);
         return passwordEncoder.encode(rawPassword);
     }

@@ -19,6 +19,12 @@ public class SkAssertions {
         }
     }
 
+    public static final void notBlank(String input) {
+        if (StringUtils.isBlank(input)) {
+            throw new IllegalArgumentException("Parameter should not blank");
+        }
+    }
+
     public static final void notBlank(String field, String input) {
         if (StringUtils.isBlank(input)) {
             throw new IllegalArgumentException(field + " should not blank");
