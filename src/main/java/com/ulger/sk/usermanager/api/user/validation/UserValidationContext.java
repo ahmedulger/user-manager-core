@@ -13,29 +13,20 @@ import java.util.Map;
 
 import static com.ulger.sk.usermanager.SkAssertions.notNull;
 
-public class DefaultUserValidationContext {
+public class UserValidationContext {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultUserValidationContext.class);
-
-    public static final int OPERATION_CREATE = 1;
-    public static final int OPERATION_UPDATE = 2;
-    public static final int OPERATION_CHANGE_PASSWORD = 3;
+    private static final Logger logger = LoggerFactory.getLogger(UserValidationContext.class);
 
     private EmailValidator emailValidator;
-    private Map<Integer, UserValidator> validationStrategies;
+    private Map<UserOperation, UserValidator> validationStrategies;
 
-    public DefaultUserValidationContext(PasswordPolicyManager passwordPolicyManager) {
+    public UserValidationContext(PasswordPolicyManager passwordPolicyManager) {
         this.emailValidator = EmailValidator.getInstance();
         this.validationStrategies = new HashMap<>();
-        this.validationStrategies.put(OPERATION_CREATE, new CreateUserValidator(emailValidator, passwordPolicyManager));
-        this.validationStrategies.put(OPERATION_UPDATE, new UpdateUserValidator(emailValidator, passwordPolicyManager));
-        this.validationStrategies.put(OPERATION_CHANGE_PASSWORD, new ChangePasswordValidator(passwordPolicyManager));
+        this.validationStrategies.put(UserOperation.CREATE, new CreateUserValidator(emailValidator, passwordPolicyManager));
+        this.validationStrategies.put(UserOperation.UPDATE, new UpdateUserValidator(emailValidator, passwordPolicyManager));
+        this.validationStrategies.put(UserOperation.CHANGE_PASSWORD, new ChangePasswordValidator(passwordPolicyManager));
 
-        logger.info("[DefaultUserValidationContext] UserValidationContext has loaded successfully :: context={}", this);
-    }
-
-    public DefaultUserValidationContext(Map<Integer, UserValidator> validationStrategies) {
-        this.validationStrategies = validationStrategies;
         logger.info("[DefaultUserValidationContext] UserValidationContext has loaded successfully :: context={}", this);
     }
 
@@ -58,7 +49,7 @@ public class DefaultUserValidationContext {
         return strategy.validate(userModificationData);
     }
 
-    public void addValidationStrategy(Integer operation, UserValidator strategy) {
+    public void addValidationStrategy(UserOperation operation, UserValidator strategy) {
         if (validationStrategies.get(operation) != null) {
             logger.info("[addValidationStrategy] Validation strategy found with operation. Strategy will be overridden :: operation={}, validationStrategy={}", operation, strategy);
         }
@@ -69,9 +60,6 @@ public class DefaultUserValidationContext {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                .append("OPERATION_CREATE", OPERATION_CREATE)
-                .append("OPERATION_UPDATE", OPERATION_UPDATE)
-                .append("OPERATION_CHANGE_PASSWORD", OPERATION_CHANGE_PASSWORD)
                 .append("emailValidator", emailValidator)
                 .append("validationStrategies", validationStrategies)
                 .toString();

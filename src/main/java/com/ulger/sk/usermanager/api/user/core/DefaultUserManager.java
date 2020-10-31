@@ -1,8 +1,12 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.*;
+import com.ulger.sk.usermanager.api.user.event.UserModificationEvent;
+import com.ulger.sk.usermanager.api.user.event.UserModificationEventListener;
 import com.ulger.sk.usermanager.api.user.password.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
+import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
+import com.ulger.sk.usermanager.api.user.validation.ValidationException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
 import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
 import com.ulger.sk.usermanager.localization.I18NHelper;
@@ -28,7 +32,7 @@ public class DefaultUserManager implements UserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUserManager.class);
 
-    private DefaultUserValidationContext defaultUserValidationContext;
+    private UserValidationContext defaultUserValidationContext;
     private PasswordEncoder passwordEncoder;
     private UserDao userDao;
     private I18NHelper i18NHelper;
@@ -40,7 +44,7 @@ public class DefaultUserManager implements UserManager {
      * @param userDao
      */
     public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao) {
-        this.defaultUserValidationContext = new DefaultUserValidationContext(passwordPolicyManager);
+        this.defaultUserValidationContext = new UserValidationContext(passwordPolicyManager);
         this.passwordEncoder = passwordEncoder;
         this.userDao = userDao;
         init();
@@ -132,61 +136,66 @@ public class DefaultUserManager implements UserManager {
         notNull(modificationData, "User creation data should not be null");
 
         MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
-        validate(mutableData, DefaultUserValidationContext.OPERATION_CREATE);
+        // validate(mutableData, UserValidationContext.OPERATION_CREATE);
 
+        // Update user's raw password to the hashed password
         encryptPassword(mutableData);
 
-        return createOrUpdateUser(mutableData);
+        User user = userDao.create(mutableData);
+        logger.info("[createUser] User has been created");
+
+        triggerEvents(modificationData, user);
+
+        return user;
     }
 
     @Override
-    public User updateUser(Object id, UserModificationData modificationData) {
-        logger.info("[updateUser] User is updating :: id={}, data={}", id, modificationData);
-        notNull(id);
+    public User updateUser(String username, UserModificationData modificationData) {
+        logger.info("[updateUser] User is updating :: username={}, data={}", username, modificationData);
+        notBlank(UserField.USERNAME.getName(), username);
         notNull(modificationData);
 
         MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
-        validate(mutableData, DefaultUserValidationContext.OPERATION_UPDATE);
+        // validate(mutableData, DefaultUserValidationContext.OPERATION_UPDATE);
 
-        User user = getUserById(modificationData);
+        User user = userDao.findByUsername(username);
         if (user == null) {
-            logger.error("[updateUser] User not found :: id={}, email={}", id, modificationData.getEmail());
-            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", id, modificationData.getEmail()));
+            logger.error("[updateUser] User not found :: username={}, email={}", username, modificationData.getEmail());
+            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", username, modificationData.getEmail()));
         }
 
-        loadId(mutableData, user.getUsername());
-        user = createOrUpdateUser(mutableData);
+        user = userDao.updateByUsername(username, mutableData);
         logger.info("[updateUser] User has been updated :: email={}", user.getEmail());
 
         return user;
     }
 
     @Override
-    public User changePassword(Object id, UserModificationData modificationData) {
-        logger.info("[changePassword] User's password is updating :: data={}", modificationData);
-        notNull(modificationData);
+    public User changePassword(String username, String oldPassword, String newPassword) {
+        logger.info("[changePassword] User's password is updating :: username={}", username);
 
-        if (Objects.isNull(id)) {
+        if (Objects.isNull(username)) {
             throw new IllegalParameterException(UserField.USERNAME.getName(), "Id should be given");
         }
 
-        MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
-        validate(mutableData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
+        // MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
+        // validate(mutableData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
 
-        User user = getUserById(id);
+        User user = userDao.findByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", modificationData.getEmail(), id));
+            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", username));
         }
 
-        if (passwordEncoder.matches(modificationData.getRawPassword(), user.getCredential())) {
+        if (passwordEncoder.matches(oldPassword, user.getCredential())) {
             throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
         }
 
+        // Update user's raw password to the hashed password
         encryptPassword(mutableData);
-        loadId(mutableData, user.getUsername());
 
-        user = createOrUpdateUser(mutableData);
+        user = userDao.updateByUsername(username, mutableData);
         logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
+
         return user;
     }
 
@@ -199,15 +208,8 @@ public class DefaultUserManager implements UserManager {
         logger.info("[addEventListener] New event listener has been added");
     }
 
-    private User getUserById(Object id) {
-        return userDao.findByUsername(id);
-    }
-
-    private void loadId(MutableUserModificationData data, Object id) {
-        data.setId(id);
-    }
-
     private void encryptPassword(MutableUserModificationData mutableUserModificationData) {
+        logger.info("[encryptPassword] encrypting user password");
         mutableUserModificationData.setHashPassword(encryptPassword(mutableUserModificationData.getRawPassword()));
     }
 
@@ -223,17 +225,6 @@ public class DefaultUserManager implements UserManager {
             logger.info("[validate] User is not valid :: validationResult={}", validationResult);
             throw new ValidationException(validationResult.getErrorCollection());
         }
-    }
-
-    private User createOrUpdateUser(MutableUserModificationData modificationData) {
-        logger.info("[createOrUpdateUser] User is saving :: data={}", modificationData);
-
-        User user = userDao.save(modificationData);
-        logger.info("[createOrUpdateUser] User has been saved");
-
-        triggerEvents(modificationData, user);
-
-        return user;
     }
 
     private void triggerEvents(UserModificationData sourceData, User user) {

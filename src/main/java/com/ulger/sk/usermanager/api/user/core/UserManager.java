@@ -48,7 +48,9 @@ public interface UserManager {
 
     /**
      * Changes users password
-     * @param userModificationData
+     * @param username
+     * @param newPassword
+     * @param oldPassword
      * @throws IllegalArgumentException if when given data is null
      * @throws ValidationException if given data is not valid
      * @throws UserNotFoundException if no user found with given email or id

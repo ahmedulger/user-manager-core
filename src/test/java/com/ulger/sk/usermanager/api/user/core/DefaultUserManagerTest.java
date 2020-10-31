@@ -113,7 +113,7 @@ public class DefaultUserManagerTest {
         assertTrue(hasSameData(user, data1));
         assertTrue(hasSameData(userManager.getUserByEmail(data1.getEmail()), data1));
 
-        data1.setId(user.getUsername());
+        data1.setUsername(user.getUsername());
         data1.setEmail("email");
         data1.setFirstName("firstname");
         data1.setLastName("lastname");
@@ -130,7 +130,7 @@ public class DefaultUserManagerTest {
         String email = data1.getEmail();
         User user = userManager.createUser(data1);
 
-        data1.setId(null);
+        data1.setUsername(null);
         data1.setEmail(null);
         assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(data1));
         assertThrows(IllegalArgumentException.class, () -> userManager.changePassword(data1));
@@ -145,12 +145,12 @@ public class DefaultUserManagerTest {
         assertThrows(UserNotFoundException.class, () -> userManager.changePassword(data1));
 
         data1.setEmail(email);
-        data1.setId(user.getUsername());
+        data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet3");
         assertEquals("Ahmet3", userManager.updateUser(data1).getFirstName());
 
         data1.setEmail("changing");
-        data1.setId(user.getUsername());
+        data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet4");
         assertThrows(ApiException.class, () -> userManager.updateUser(data1));
         assertThrows(ApiException.class, () -> userManager.changePassword(data1));
@@ -189,20 +189,20 @@ public class DefaultUserManagerTest {
 
         assertEquals(2, userDao.find().size());
 
-        data2.setId(user2.getUsername());
-        data3.setId(data2.getUsername());
+        data2.setUsername(user2.getUsername());
+        data3.setUsername(data2.getUsername());
         data3.setEmail(data1.getEmail());
 
         DataAccessException exception = assertThrows(DataAccessException.class, () -> userManager.updateUser(data3));
         assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception.getCause()).getReason());
 
-        data4.setId(data2.getUsername());
+        data4.setUsername(data2.getUsername());
         data4.setEmail(data1.getEmail());
 
         DataAccessException exception2 = assertThrows(DataAccessException.class, () -> userManager.updateUser(data4));
         assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception2.getCause()).getReason());
 
-        data5.setId(data2.getUsername());
+        data5.setUsername(data2.getUsername());
         data5.setFirstName(data1.getFirstName());
         data5.setLastName(data1.getLastName());
         data5.setHashPassword(data1.getHashPassword());
@@ -254,7 +254,7 @@ public class DefaultUserManagerTest {
             }
         }).onModified(anyObject());
 
-        data1.setId(user1.getUsername());
+        data1.setUsername(user1.getUsername());
         data1.setFirstName("Ahmet3");
 
         userManager.updateUser(data1);

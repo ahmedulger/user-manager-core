@@ -34,7 +34,15 @@ public interface UserDao {
      * Saves given {@link User} object.
      * If id is given than updates, if not than tries to create new instance
      * @param user
-     * @return created or updated instance
+     * @return created instance
      */
-    User save(User user);
+    User create(User user);
+
+    /**
+     *
+     * @param username
+     * @param user
+     * @return
+     */
+    User updateByUsername(String username, User user);
 }

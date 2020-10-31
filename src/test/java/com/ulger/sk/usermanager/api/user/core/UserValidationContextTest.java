@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.validation.DefaultUserValidationContext;
+import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidator;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.password.SimplePasswordCheckingResult;
@@ -13,15 +13,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-public class DefaultUserValidationContextTest {
+public class UserValidationContextTest {
 
     private PasswordPolicyManager passwordPolicyManager;
-    private DefaultUserValidationContext validationContext;
+    private UserValidationContext validationContext;
 
     @BeforeEach
     void setUp() {
         this.passwordPolicyManager = Mockito.mock(PasswordPolicyManager.class);
-        this.validationContext = new DefaultUserValidationContext(passwordPolicyManager);
+        this.validationContext = new UserValidationContext(passwordPolicyManager);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class DefaultUserValidationContextTest {
 
     @Test
     void test_invalid_input() {
-        assertThrows(IllegalArgumentException.class, () -> validationContext.validate(null, DefaultUserValidationContext.OPERATION_CREATE).isValid());
+        assertThrows(IllegalArgumentException.class, () -> validationContext.validate(null, UserValidationContext.OPERATION_CREATE).isValid());
     }
 
     @Test
@@ -47,8 +47,8 @@ public class DefaultUserValidationContextTest {
 
         when(passwordPolicyManager.checkPolicy(anyString())).thenReturn(new SimplePasswordCheckingResult());
 
-        assertTrue(validationContext.validate(data, DefaultUserValidationContext.OPERATION_CREATE).isValid());
-        assertTrue(validationContext.validate(data, DefaultUserValidationContext.OPERATION_UPDATE).isValid());
+        assertTrue(validationContext.validate(data, UserValidationContext.OPERATION_CREATE).isValid());
+        assertTrue(validationContext.validate(data, UserValidationContext.OPERATION_UPDATE).isValid());
     }
 
     private MutableUserModificationData createSimpleData() {

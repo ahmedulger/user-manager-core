@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class MutableUserModificationData implements UserModificationData, User {
 
-    private Object id;
+    private String username;
     private String email;
     private String firstName;
     private String lastName;
@@ -21,7 +21,7 @@ public class MutableUserModificationData implements UserModificationData, User {
     }
 
     MutableUserModificationData(UserModificationData userModificationData) {
-        this.id = userModificationData.getId();
+        this.username = userModificationData.getId();
         this.email = userModificationData.getEmail();
         this.firstName = userModificationData.getFirstName();
         this.lastName = userModificationData.getLastName();
@@ -29,12 +29,12 @@ public class MutableUserModificationData implements UserModificationData, User {
     }
 
     @Override
-    public Object getUsername() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    void setId(Object id) {
-        this.id = id;
+    void setUsername(String username) {
+        this.username = username;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MutableUserModificationData implements UserModificationData, User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MutableUserModificationData that = (MutableUserModificationData) o;
-        return Objects.equals(id, that.id) &&
+        return Objects.equals(username, that.username) &&
                 Objects.equals(email, that.email) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName) &&
@@ -100,13 +100,13 @@ public class MutableUserModificationData implements UserModificationData, User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, firstName, lastName, rawPassword, hashPassword);
+        return Objects.hash(username, email, firstName, lastName, rawPassword, hashPassword);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                .append("id", id)
+                .append("id", username)
                 .append("email", email)
                 .append("firstName", firstName)
                 .append("lastName", lastName)

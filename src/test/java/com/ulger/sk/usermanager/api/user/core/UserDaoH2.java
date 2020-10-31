@@ -74,7 +74,7 @@ public class UserDaoH2 implements UserDao<Integer> {
     }
 
     @Override
-    public User save(User user) throws DataAccessException {
+    public User create(User user) throws DataAccessException {
         if (Objects.isNull(user.getUsername())) {
             return create(user);
         }
