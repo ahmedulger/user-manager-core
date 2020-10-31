@@ -1,5 +1,9 @@
 package com.ulger.sk.usermanager.api.user;
 
+import com.ulger.sk.usermanager.api.user.password.PasswordCheckingResult;
+import com.ulger.sk.usermanager.api.user.password.PasswordPolicyCondition;
+import com.ulger.sk.usermanager.api.user.password.SimplePasswordCheckingResult;
+
 import java.util.function.BiConsumer;
 
 public class PasswordPolicyConditionMock implements PasswordPolicyCondition {

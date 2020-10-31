@@ -2,11 +2,19 @@ package com.ulger.sk.usermanager.exception;
 
 public class IllegalParameterException extends IllegalArgumentException {
 
-    public IllegalParameterException(String s) {
-        super(s);
+    private String parameterName;
+
+    public IllegalParameterException(String parameterName, String message) {
+        super(message);
+        this.parameterName = parameterName;
     }
 
-    public IllegalParameterException(String message, Throwable cause) {
+    public IllegalParameterException(String parameterName, String message, Throwable cause) {
         super(message, cause);
+        this.parameterName = parameterName;
+    }
+
+    public String getParameterName() {
+        return parameterName;
     }
 }
