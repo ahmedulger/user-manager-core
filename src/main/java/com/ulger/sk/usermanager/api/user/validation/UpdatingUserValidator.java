@@ -1,5 +1,6 @@
 package com.ulger.sk.usermanager.api.user.validation;
 
+import com.ulger.sk.usermanager.api.user.core.UserField;
 import com.ulger.sk.usermanager.api.user.core.UserModificationData;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
@@ -9,31 +10,31 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpdateUserValidator implements UserValidator {
+public class UpdatingUserValidator implements UserValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(UpdateUserValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(UpdatingUserValidator.class);
 
     private EmailValidator emailValidator;
     private PasswordPolicyManager passwordPolicyManager;
     private I18NHelper i18NHelper;
 
-    public UpdateUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager) {
+    public UpdatingUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager) {
         this(emailValidator, passwordPolicyManager, new DefaultI18NHelper());
     }
 
-    public UpdateUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager, I18NHelper i18NHelper) {
+    public UpdatingUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager, I18NHelper i18NHelper) {
         this.emailValidator = emailValidator;
         this.passwordPolicyManager = passwordPolicyManager;
         this.i18NHelper = i18NHelper;
     }
 
     @Override
-    public UserValidationResult validate(UserModificationData userModificationData) {
+    public UserValidationResult validate(UserModificationData modificationData) {
         if (logger.isDebugEnabled()) {
-            logger.debug("[validate] User request is validating to update :: request={}", userModificationData);
+            logger.debug("[validate] User request is validating to update :: request={}", modificationData);
         }
 
-        UpdateValidationHelper validationHelper = createValidationHelper(userModificationData);
+        UpdateValidationHelper validationHelper = createValidationHelper(modificationData);
         validationHelper.validateEmailAddress();
 
         return validationHelper.getValidationResult();

@@ -1,6 +1,7 @@
 package com.ulger.sk.usermanager.api.user.validation;
 
-import com.ulger.sk.usermanager.api.user.core.*;
+import com.ulger.sk.usermanager.api.user.core.UserModificationData;
+import com.ulger.sk.usermanager.api.user.core.UserOperation;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -23,33 +24,30 @@ public class UserValidationContext {
     public UserValidationContext(PasswordPolicyManager passwordPolicyManager) {
         this.emailValidator = EmailValidator.getInstance();
         this.validationStrategies = new HashMap<>();
-        this.validationStrategies.put(UserOperation.CREATE, new CreateUserValidator(emailValidator, passwordPolicyManager));
-        this.validationStrategies.put(UserOperation.UPDATE, new UpdateUserValidator(emailValidator, passwordPolicyManager));
-        this.validationStrategies.put(UserOperation.CHANGE_PASSWORD, new ChangePasswordValidator(passwordPolicyManager));
 
-        logger.info("[DefaultUserValidationContext] UserValidationContext has loaded successfully :: context={}", this);
+        logger.info("[UserValidationContext] UserValidationContext has loaded successfully :: context={}", this);
     }
 
-    public UserValidationResult validate(UserModificationData userModificationData, Integer operationId) {
+    public UserValidationResult validate(UserModificationData modificationData, UserOperation operation) {
         if (logger.isDebugEnabled()) {
-            logger.debug("[validate] Validation operation started :: userData={}, operationId={}", userModificationData, operationId);
+            logger.debug("[validate] Validation operation started :: userData={}, operation={}", modificationData, operation);
         }
 
-        UserValidator strategy = validationStrategies.get(operationId);
+        UserValidator strategy = validationStrategies.get(operation);
         if (strategy == null) {
-            logger.info("[validate] No validation strategy found with operationId :: operationId={}", operationId);
-            throw new IllegalArgumentException("No validator found with operationId :: operationId=" + operationId);
+            logger.info("[validate] No validation strategy found with operation :: operation={}", operation);
+            throw new IllegalArgumentException("No validator found with operation :: operation=" + operation);
         }
 
-        return strategy.validate(userModificationData);
+        return strategy.validate(modificationData);
     }
 
-    public UserValidationResult validate(UserModificationData userModificationData, UserValidator strategy) {
+    public UserValidationResult validate(UserModificationData modificationData, UserValidator strategy) {
         notNull(strategy);
-        return strategy.validate(userModificationData);
+        return strategy.validate(modificationData);
     }
 
-    public void addValidationStrategy(UserOperation operation, UserValidator strategy) {
+    public void setValidationStrategy(UserOperation operation, UserValidator strategy) {
         if (validationStrategies.get(operation) != null) {
             logger.info("[addValidationStrategy] Validation strategy found with operation. Strategy will be overridden :: operation={}, validationStrategy={}", operation, strategy);
         }

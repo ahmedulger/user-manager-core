@@ -1,7 +1,5 @@
 package com.ulger.sk.usermanager.api.user.password;
 
-import com.ulger.sk.usermanager.api.user.password.PasswordCheckingResult;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;

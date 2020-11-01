@@ -1,6 +1,9 @@
 package com.ulger.sk.usermanager.api.user;
 
-import com.ulger.sk.usermanager.api.user.password.*;
+import com.ulger.sk.usermanager.api.user.password.DefaultPasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.password.PasswordCheckingResult;
+import com.ulger.sk.usermanager.api.user.password.PasswordPolicyCondition;
+import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

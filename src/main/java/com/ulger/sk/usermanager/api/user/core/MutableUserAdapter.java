@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * This class holds user data to update or save user.
  */
-public class MutableUserModificationData implements UserModificationData, User {
+public class MutableUserAdapter implements UserModificationData, User {
 
     private String username;
     private String email;
@@ -17,15 +17,15 @@ public class MutableUserModificationData implements UserModificationData, User {
     private String rawPassword;
     private String hashPassword;
 
-    MutableUserModificationData() {
+    MutableUserAdapter() {
     }
 
-    MutableUserModificationData(UserModificationData userModificationData) {
-        this.username = userModificationData.getId();
-        this.email = userModificationData.getEmail();
-        this.firstName = userModificationData.getFirstName();
-        this.lastName = userModificationData.getLastName();
-        this.rawPassword = userModificationData.getRawPassword();
+    MutableUserAdapter(UserModificationData modificationData) {
+        this.username = modificationData.getId();
+        this.email = modificationData.getEmail();
+        this.firstName = modificationData.getFirstName();
+        this.lastName = modificationData.getLastName();
+        this.rawPassword = modificationData.getRawPassword();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class MutableUserModificationData implements UserModificationData, User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MutableUserModificationData that = (MutableUserModificationData) o;
+        MutableUserAdapter that = (MutableUserAdapter) o;
         return Objects.equals(username, that.username) &&
                 Objects.equals(email, that.email) &&
                 Objects.equals(firstName, that.firstName) &&

@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleCachingUserManagerTest {
 
-    final MutableUserModificationData data1 = getModificationData("email1@gmail.com", "fn1", "ln1", "hpw1");
-    final MutableUserModificationData data2 = getModificationData("email2@gmail.com", "fn2", "ln2", "hpw2");
-    final MutableUserModificationData data3 = getModificationData("email3@gmail.com", "fn3", "ln3", "hpw3");
-    final MutableUserModificationData data4 = getModificationData("email4@gmail.com", "fn4", "ln4", "hpw4");
-    final MutableUserModificationData data5 = getModificationData("email5@gmail.com", "fn5", "ln5", "hpw5");
+    final MutableUserAdapter data1 = getModificationData("email1@gmail.com", "fn1", "ln1", "hpw1");
+    final MutableUserAdapter data2 = getModificationData("email2@gmail.com", "fn2", "ln2", "hpw2");
+    final MutableUserAdapter data3 = getModificationData("email3@gmail.com", "fn3", "ln3", "hpw3");
+    final MutableUserAdapter data4 = getModificationData("email4@gmail.com", "fn4", "ln4", "hpw4");
+    final MutableUserAdapter data5 = getModificationData("email5@gmail.com", "fn5", "ln5", "hpw5");
 
     private UserDao userDao;
     private PasswordEncoder passwordEncoder;
@@ -53,8 +53,8 @@ public class SimpleCachingUserManagerTest {
         assertTrue(updatedUser == cachingUserManager.getUserByEmail(user1.getEmail()));
     }
 
-    private static MutableUserModificationData getModificationData(String email, String firstName, String lastName, String password) {
-        MutableUserModificationData request = new MutableUserModificationData();
+    private static MutableUserAdapter getModificationData(String email, String firstName, String lastName, String password) {
+        MutableUserAdapter request = new MutableUserAdapter();
 
         request.setEmail(email);
         request.setFirstName(firstName);

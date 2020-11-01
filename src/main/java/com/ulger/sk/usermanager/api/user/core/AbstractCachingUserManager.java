@@ -33,16 +33,16 @@ public abstract class AbstractCachingUserManager implements UserManager {
 
     private final void init() {
         if (this.modificationEventListeners == null) {
-            logger.info("[init] AbstractCachingUserManager, no modification listener found");
+            logger.info("No modification listener found");
             this.modificationEventListeners = new LinkedList<>();
         }
 
         if (userManager == null) {
-            logger.error("[init] AbstractCachingUserManager requires a none caching user manager]");
+            logger.error("AbstractCachingUserManager requires a none caching user manager]");
             throw new IllegalArgumentException("AbstractCachingUserManager requires a none caching user manager");
         }
 
-        logger.warn("[init] AbstractCachingUserManager is initialized with userManager, " +
+        logger.warn("AbstractCachingUserManager is initialized with userManager, " +
                 "this user manager needs none caching user manager :: userManager={}", userManager);
     }
 
@@ -83,7 +83,7 @@ public abstract class AbstractCachingUserManager implements UserManager {
         User user = getUserFromCache(email);
         if (user != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("[getUserByEmail] User with email found in cache :: user={}", user);
+                logger.debug("User with email found in cache :: user={}", user);
             }
 
             return user;
@@ -138,12 +138,12 @@ public abstract class AbstractCachingUserManager implements UserManager {
     /**
      * Creates user with given data and then puts data to cache. If cache has already
      * user with given email, then overrides data in cache with updated user. After all, triggers events if found.
-     * @param userModificationData
+     * @param modificationData
      * @return
      */
     @Override
-    public User createUser(UserModificationData userModificationData) {
-        User user = userManager.createUser(userModificationData);
+    public User createUser(UserModificationData modificationData) {
+        User user = userManager.createUser(modificationData);
 
         if (user != null) {
             addUserToCache(user);
@@ -153,19 +153,19 @@ public abstract class AbstractCachingUserManager implements UserManager {
             }
         }
 
-        triggerEvents(userModificationData, user);
+        triggerEvents(modificationData, user);
         return user;
     }
 
     /**
      * Updates user with given data and then puts data to cache. If cache has already
      * user with given email, then overrides data in cache with updated user. After all, triggers events if found.
-     * @param userModificationData
+     * @param modificationData
      * @return
      */
     @Override
-    public User updateUser(UserModificationData userModificationData) {
-        User user = userManager.updateUser(userModificationData);
+    public User updateUser(String username, UserModificationData modificationData) {
+        User user = userManager.updateUser(username, modificationData);
 
         if (user != null) {
             addUserToCache(user);
@@ -175,13 +175,13 @@ public abstract class AbstractCachingUserManager implements UserManager {
             }
         }
 
-        triggerEvents(userModificationData, user);
+        triggerEvents(modificationData, user);
         return user;
     }
 
     @Override
-    public User changePassword(UserModificationData userModificationData) {
-        User user = userManager.changePassword(userModificationData);
+    public User changePassword(String username, String oldPassword, String newPassword) {
+        User user = userManager.changePassword(username, oldPassword, newPassword);
 
         if (user != null) {
             addUserToCache(user);
@@ -191,7 +191,7 @@ public abstract class AbstractCachingUserManager implements UserManager {
             }
         }
 
-        triggerEvents(userModificationData, user);
+        triggerEvents(modificationData, user);
         return user;
     }
 

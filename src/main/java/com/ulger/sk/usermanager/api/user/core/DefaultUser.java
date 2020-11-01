@@ -101,13 +101,13 @@ public class DefaultUser implements User {
         }
 
         public DefaultUser build() {
-            DefaultUser defaultUser = new DefaultUser();
-            defaultUser.firstName = this.firstName;
-            defaultUser.credential = this.credential;
-            defaultUser.lastName = this.lastName;
-            defaultUser.username = this.username;
-            defaultUser.email = this.email;
-            return defaultUser;
+            DefaultUser user = new DefaultUser();
+            user.firstName = this.firstName;
+            user.credential = this.credential;
+            user.lastName = this.lastName;
+            user.username = this.username;
+            user.email = this.email;
+            return user;
         }
     }
 }

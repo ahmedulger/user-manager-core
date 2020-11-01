@@ -1,8 +1,8 @@
 package com.ulger.sk.usermanager.api.user;
 
-import com.ulger.sk.usermanager.api.user.core.User;
-import com.ulger.sk.usermanager.api.user.core.DefaultUser;
 import com.ulger.sk.usermanager.api.user.cache.SimpleUserCache;
+import com.ulger.sk.usermanager.api.user.core.DefaultUser;
+import com.ulger.sk.usermanager.api.user.core.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

@@ -32,7 +32,7 @@ public class DefaultUserManager implements UserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUserManager.class);
 
-    private UserValidationContext defaultUserValidationContext;
+    private UserValidationContext userValidationContext;
     private PasswordEncoder passwordEncoder;
     private UserDao userDao;
     private I18NHelper i18NHelper;
@@ -44,7 +44,7 @@ public class DefaultUserManager implements UserManager {
      * @param userDao
      */
     public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao) {
-        this.defaultUserValidationContext = new UserValidationContext(passwordPolicyManager);
+        this.userValidationContext = new UserValidationContext(passwordPolicyManager);
         this.passwordEncoder = passwordEncoder;
         this.userDao = userDao;
         init();
@@ -133,18 +133,18 @@ public class DefaultUserManager implements UserManager {
     @Override
     public User createUser(UserModificationData modificationData) {
         logger.info("[createUser] User is creating :: data={}", modificationData);
-        notNull(modificationData, "User creation data should not be null");
 
-        MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
-        // validate(mutableData, UserValidationContext.OPERATION_CREATE);
+        // Validate
+        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
+        validate(mutableUserAdapter, UserOperation.CREATE);
 
         // Update user's raw password to the hashed password
-        encryptPassword(mutableData);
+        encryptPassword(mutableUserAdapter);
 
-        User user = userDao.create(mutableData);
+        User user = userDao.create(mutableUserAdapter);
         logger.info("[createUser] User has been created");
 
-        triggerEvents(modificationData, user);
+        triggerEvents(modificationData, user, UserModificationEvent.EventType.CREATE);
 
         return user;
     }
@@ -153,10 +153,10 @@ public class DefaultUserManager implements UserManager {
     public User updateUser(String username, UserModificationData modificationData) {
         logger.info("[updateUser] User is updating :: username={}, data={}", username, modificationData);
         notBlank(UserField.USERNAME.getName(), username);
-        notNull(modificationData);
 
-        MutableUserModificationData mutableData = new MutableUserModificationData(modificationData);
-        // validate(mutableData, DefaultUserValidationContext.OPERATION_UPDATE);
+        // Validate
+        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
+        validate(modificationData, UserOperation.UPDATE);
 
         User user = userDao.findByUsername(username);
         if (user == null) {
@@ -164,7 +164,7 @@ public class DefaultUserManager implements UserManager {
             throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", username, modificationData.getEmail()));
         }
 
-        user = userDao.updateByUsername(username, mutableData);
+        user = userDao.updateByUsername(username, mutableUserAdapter);
         logger.info("[updateUser] User has been updated :: email={}", user.getEmail());
 
         return user;
@@ -178,9 +178,9 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalParameterException(UserField.USERNAME.getName(), "Id should be given");
         }
 
-        MutableUserModificationData mutableData = new MutableUserModificationData();
-        mutableData.setUsername(username);
-        // validate(mutableData, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
+        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter();
+        mutableUserAdapter.setUsername(username);
+        // validate(mutableUserAdapter, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
 
         User user = userDao.findByUsername(username);
         if (user == null) {
@@ -191,11 +191,10 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
         }
 
-
         // Update user's raw password to the hashed password
-        encryptPassword(mutableData);
+        encryptPassword(mutableUserAdapter);
 
-        user = userDao.updateByUsername(username, mutableData);
+        user = userDao.updateByUsername(username, mutableUserAdapter);
         logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
 
         return user;
@@ -210,9 +209,9 @@ public class DefaultUserManager implements UserManager {
         logger.info("[addEventListener] New event listener has been added");
     }
 
-    private void encryptPassword(MutableUserModificationData mutableUserModificationData) {
+    private void encryptPassword(MutableUserAdapter mutableUserAdapter) {
         logger.info("[encryptPassword] encrypting user password");
-        mutableUserModificationData.setHashPassword(encryptRawPassword(mutableUserModificationData.getRawPassword()));
+        mutableUserAdapter.setHashPassword(encryptRawPassword(mutableUserAdapter.getRawPassword()));
     }
 
     private String encryptRawPassword(String rawPassword) {
@@ -220,8 +219,8 @@ public class DefaultUserManager implements UserManager {
         return passwordEncoder.encode(rawPassword);
     }
 
-    private void validate(UserModificationData userModificationData, int operation) {
-        UserValidationResult validationResult = defaultUserValidationContext.validate(userModificationData, operation);
+    private void validate(UserModificationData userModificationData, UserOperation operation) {
+        UserValidationResult validationResult = userValidationContext.validate(userModificationData, operation);
 
         if (!validationResult.isValid()) {
             logger.info("[validate] User is not valid :: validationResult={}", validationResult);
@@ -229,18 +228,13 @@ public class DefaultUserManager implements UserManager {
         }
     }
 
-    private void triggerEvents(UserModificationData sourceData, User user) {
+    protected void triggerEvents(UserModificationData sourceData, User user, UserModificationEvent.EventType eventType) {
         if (modificationEventListeners.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("[triggerEvents] No listener found to trigger");
             }
 
             return;
-        }
-
-        UserModificationEvent.EventType eventType = UserModificationEvent.EventType.UPDATE;
-        if (Objects.isNull(sourceData.getId())) {
-            eventType = UserModificationEvent.EventType.CREATE;
         }
 
         UserModificationEvent event = new UserModificationEvent(eventType, sourceData, user, LocalDateTime.now());
@@ -262,7 +256,7 @@ public class DefaultUserManager implements UserManager {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                .append("defaultUserValidationContext", defaultUserValidationContext)
+                .append("userValidationContext", userValidationContext)
                 .append("passwordEncoder", passwordEncoder)
                 .append("userDao", userDao)
                 .append("modificationEventListeners", modificationEventListeners)
