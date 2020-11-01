@@ -1,15 +1,11 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.event.UserModificationEvent;
-import com.ulger.sk.usermanager.api.user.event.UserModificationEventListener;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractCachingUserManager implements UserManager {
 
@@ -17,7 +13,6 @@ public abstract class AbstractCachingUserManager implements UserManager {
 
     private Map<String, User> userCache;
     private UserManager userManager;
-    private Collection<UserModificationEventListener> modificationEventListeners;
 
     public AbstractCachingUserManager(UserManager userManager) {
         this.userCache = new HashMap<>();
@@ -25,18 +20,7 @@ public abstract class AbstractCachingUserManager implements UserManager {
         init();
     }
 
-    public AbstractCachingUserManager(UserManager userManager, Collection<UserModificationEventListener> modificationEventListeners) {
-        this(userManager);
-        this.modificationEventListeners = modificationEventListeners;
-        init();
-    }
-
     private final void init() {
-        if (this.modificationEventListeners == null) {
-            logger.info("No modification listener found");
-            this.modificationEventListeners = new LinkedList<>();
-        }
-
         if (userManager == null) {
             logger.error("AbstractCachingUserManager requires a none caching user manager]");
             throw new IllegalArgumentException("AbstractCachingUserManager requires a none caching user manager");
@@ -153,7 +137,6 @@ public abstract class AbstractCachingUserManager implements UserManager {
             }
         }
 
-        triggerEvents(modificationData, user);
         return user;
     }
 
@@ -175,7 +158,6 @@ public abstract class AbstractCachingUserManager implements UserManager {
             }
         }
 
-        triggerEvents(modificationData, user);
         return user;
     }
 
@@ -191,30 +173,7 @@ public abstract class AbstractCachingUserManager implements UserManager {
             }
         }
 
-        triggerEvents(modificationData, user);
         return user;
-    }
-
-    private void triggerEvents(UserModificationData sourceData, User user) {
-        UserModificationEvent.EventType eventType = UserModificationEvent.EventType.UPDATE;
-        if (Objects.isNull(sourceData.getId())) {
-            eventType = UserModificationEvent.EventType.CREATE;
-        }
-
-        UserModificationEvent event = new UserModificationEvent(eventType, sourceData, user, LocalDateTime.now());
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("[triggerEvents] Triggering events with data :: event={}", event);
-        }
-
-        for (UserModificationEventListener listener : modificationEventListeners) {
-            if (listener.isAsync()) {
-                CompletableFuture.runAsync(() -> listener.onModified(event));
-                continue;
-            }
-
-            listener.onModified(event);
-        }
     }
 
     @Override
@@ -222,7 +181,6 @@ public abstract class AbstractCachingUserManager implements UserManager {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
                 .append("userCache", userCache)
                 .append("userManager", userManager)
-                .append("modificationEventListeners", modificationEventListeners)
                 .toString();
     }
 }

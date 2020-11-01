@@ -1,7 +1,5 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.event.UserModificationEvent;
-import com.ulger.sk.usermanager.api.user.event.UserModificationEventListener;
 import com.ulger.sk.usermanager.api.user.password.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
@@ -15,15 +13,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 import static com.ulger.sk.usermanager.SkAssertions.notBlank;
-import static com.ulger.sk.usermanager.SkAssertions.notNull;
 
 /**
  * Simple implementation of {@link UserManager}
@@ -36,7 +29,6 @@ public class DefaultUserManager implements UserManager {
     private PasswordEncoder passwordEncoder;
     private UserDao userDao;
     private I18NHelper i18NHelper;
-    private Collection<UserModificationEventListener> modificationEventListeners;
 
     /**
      * Constructs instance with UserDao.
@@ -61,27 +53,10 @@ public class DefaultUserManager implements UserManager {
         init();
     }
 
-    /**
-     * Constructs instance with UserDao.
-     * If no event listener given than any events will be published after user modification
-     * @param userDao
-     * @param modificationEventListeners
-     */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao, Collection<UserModificationEventListener> modificationEventListeners, I18NHelper i18nHelper) {
-        this(passwordEncoder, passwordPolicyManager, userDao, i18nHelper);
-        this.modificationEventListeners = modificationEventListeners;
-        init();
-    }
-
     private final void init() {
         if (passwordEncoder == null) {
             logger.error("[init] No password encoder found, PasswordEncoder is required");
             throw new IllegalArgumentException("No password encoder found, PasswordEncoder is required");
-        }
-
-        if (this.modificationEventListeners == null) {
-            logger.warn("[init] No modification listener found");
-            this.modificationEventListeners = new LinkedList<>();
         }
 
         if (this.i18NHelper == null) {
@@ -144,8 +119,6 @@ public class DefaultUserManager implements UserManager {
         User user = userDao.create(mutableUserAdapter);
         logger.info("[createUser] User has been created");
 
-        triggerEvents(modificationData, user, UserModificationEvent.EventType.CREATE);
-
         return user;
     }
 
@@ -158,14 +131,8 @@ public class DefaultUserManager implements UserManager {
         MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
         validate(modificationData, UserOperation.UPDATE);
 
-        User user = userDao.findByUsername(username);
-        if (user == null) {
-            logger.error("[updateUser] User not found :: username={}, email={}", username, modificationData.getEmail());
-            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found", username, modificationData.getEmail()));
-        }
-
-        user = userDao.updateByUsername(username, mutableUserAdapter);
-        logger.info("[updateUser] User has been updated :: email={}", user.getEmail());
+        User user = userDao.updateByUsername(username, mutableUserAdapter);
+        logger.info("[updateUser] User has been updated :: username={}", username);
 
         return user;
     }
@@ -179,8 +146,8 @@ public class DefaultUserManager implements UserManager {
         }
 
         MutableUserAdapter mutableUserAdapter = new MutableUserAdapter();
-        mutableUserAdapter.setUsername(username);
-        // validate(mutableUserAdapter, DefaultUserValidationContext.OPERATION_CHANGE_PASSWORD);
+        mutableUserAdapter.setRawPassword(oldPassword);
+        validate(mutableUserAdapter, UserOperation.CHANGE_PASSWORD);
 
         User user = userDao.findByUsername(username);
         if (user == null) {
@@ -198,15 +165,6 @@ public class DefaultUserManager implements UserManager {
         logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
 
         return user;
-    }
-
-    /**
-     * Add event listener that is going to be triggered after user modified
-     * @param userModificationEventListener
-     */
-    public void addEventListener(UserModificationEventListener userModificationEventListener) {
-        this.modificationEventListeners.add(userModificationEventListener);
-        logger.info("[addEventListener] New event listener has been added");
     }
 
     private void encryptPassword(MutableUserAdapter mutableUserAdapter) {
@@ -228,38 +186,12 @@ public class DefaultUserManager implements UserManager {
         }
     }
 
-    protected void triggerEvents(UserModificationData sourceData, User user, UserModificationEvent.EventType eventType) {
-        if (modificationEventListeners.isEmpty()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("[triggerEvents] No listener found to trigger");
-            }
-
-            return;
-        }
-
-        UserModificationEvent event = new UserModificationEvent(eventType, sourceData, user, LocalDateTime.now());
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("[triggerEvents] Triggering events with data :: event={}", event);
-        }
-
-        for (UserModificationEventListener listener : modificationEventListeners) {
-            if (listener.isAsync()) {
-                CompletableFuture.runAsync(() -> listener.onModified(event));
-                continue;
-            }
-
-            listener.onModified(event);
-        }
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
                 .append("userValidationContext", userValidationContext)
                 .append("passwordEncoder", passwordEncoder)
                 .append("userDao", userDao)
-                .append("modificationEventListeners", modificationEventListeners)
                 .toString();
     }
 }

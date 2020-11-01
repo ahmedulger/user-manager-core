@@ -1,6 +1,5 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.UserModificationEventListener;
 import com.ulger.sk.usermanager.cache.Cache;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -17,12 +16,6 @@ public class ReferencingCachingUserManager extends AbstractCachingUserManager {
 
     public ReferencingCachingUserManager(UserManager userManager, Cache<User> userCache) {
         super(userManager);
-        this.userCache = userCache;
-        init();
-    }
-
-    public ReferencingCachingUserManager(UserManager userManager, Cache<User> userCache, Collection<UserModificationEventListener> modificationEventListeners) {
-        super(userManager, modificationEventListeners);
         this.userCache = userCache;
         init();
     }
