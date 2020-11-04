@@ -30,8 +30,9 @@ public interface UserManager {
      * @param userModificationData contains user information to be saved.
      * @return Created {@link User} data
      * @throws ValidationException when given data is not valid
+     * @throws UserOperationException when any exception occurred
      * */
-    User createUser(UserModificationData userModificationData);
+    User createUser(UserModificationData userModificationData) throws ValidationException, UserOperationException;
 
     /**
      * Returns a {@link User} object updated by using modification data that is given as parameter
@@ -42,9 +43,9 @@ public interface UserManager {
      * @param userModificationData contains user information to be saved.
      * @return Updated {@link User} data
      * @throws ValidationException when given data is not valid
-     * @throws UserNotFoundException if no user found with given email or id
+     * @throws UserOperationException when any exception occurred
      */
-    User updateUser(String username, UserModificationData userModificationData);
+    User updateUser(String username, UserModificationData userModificationData) throws ValidationException, UserOperationException;
 
     /**
      * Changes users password
@@ -54,7 +55,8 @@ public interface UserManager {
      * @throws IllegalArgumentException if when given data is null
      * @throws ValidationException if given data is not valid
      * @throws UserNotFoundException if no user found with given email or id
+     * @throws UserOperationException when any unexpected exception occurred
      * @return Updated {@link User} data
      */
-    User changePassword(String username, String oldPassword, String newPassword);
+    User changePassword(String username, String oldPassword, String newPassword) throws ValidationException, UserNotFoundException, UserOperationException;
 }

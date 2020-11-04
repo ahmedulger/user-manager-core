@@ -5,6 +5,7 @@ import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
+import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
 import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
 import com.ulger.sk.usermanager.localization.I18NHelper;
@@ -107,34 +108,46 @@ public class DefaultUserManager implements UserManager {
 
     @Override
     public User createUser(UserModificationData modificationData) {
-        logger.info("[createUser] User is creating :: data={}", modificationData);
+        try {
+            logger.info("[createUser] User is creating :: data={}", modificationData);
 
-        // Validate
-        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
-        validate(mutableUserAdapter, UserOperation.CREATE);
+            // Validate
+            MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
+            validate(mutableUserAdapter, UserOperation.CREATE);
 
-        // Update user's raw password to the hashed password
-        encryptPassword(mutableUserAdapter);
+            // Update user's raw password to the hashed password
+            encryptPassword(mutableUserAdapter);
 
-        User user = userDao.create(mutableUserAdapter);
-        logger.info("[createUser] User has been created");
+            User user = userDao.create(mutableUserAdapter);
+            logger.info("[createUser] User has been created");
 
-        return user;
+            return user;
+
+        } catch (Exception e) {
+            logger.error("Unable to create user", e);
+            throw new UserOperationException("Unable to create user", e);
+        }
     }
 
     @Override
     public User updateUser(String username, UserModificationData modificationData) {
-        logger.info("[updateUser] User is updating :: username={}, data={}", username, modificationData);
-        notBlank(UserField.USERNAME.getName(), username);
+        try {
+            logger.info("[updateUser] User is updating :: username={}, data={}", username, modificationData);
+            notBlank(UserField.USERNAME.getName(), username);
 
-        // Validate
-        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
-        validate(modificationData, UserOperation.UPDATE);
+            // Validate
+            MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
+            validate(modificationData, UserOperation.UPDATE);
 
-        User user = userDao.updateByUsername(username, mutableUserAdapter);
-        logger.info("[updateUser] User has been updated :: username={}", username);
+            User user = userDao.updateByUsername(username, mutableUserAdapter);
+            logger.info("[updateUser] User has been updated :: username={}", username);
 
-        return user;
+            return user;
+
+        } catch (Exception e) {
+            logger.error("Unable to update user", e);
+            throw new UserOperationException("Unable to update user", e);
+        }
     }
 
     @Override
