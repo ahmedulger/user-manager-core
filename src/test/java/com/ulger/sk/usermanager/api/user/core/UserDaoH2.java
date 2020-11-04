@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-public class UserDaoH2 implements UserDao<Integer> {
+public class UserDaoH2 implements UserDao {
 
     public UserDaoH2() {
         generateSchema();
     }
 
     @Override
-    public User findById(Integer id) throws DataAccessException {
-        String query = generateSqlQuery("SELECT * FROM user where id=%s", id.toString());
+    public User findByUsername(String username) throws DataAccessException {
+        String query = generateSqlQuery("SELECT * FROM user where username=%s", username);
 
         try (Statement stmt = createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
@@ -75,17 +75,13 @@ public class UserDaoH2 implements UserDao<Integer> {
 
     @Override
     public User create(User user) throws DataAccessException {
-        if (Objects.isNull(user.getUsername())) {
-            return create(user);
-        }
+        String selectQuery = generateSqlQuery(
+                "SELECT * FROM user where username='%s'",
+                user.getUsername());
 
-        return updateUser(user);
-    }
-
-    private User create(User user) {
-        String selectQuery = generateSqlQuery("SELECT * FROM user where email='%s'", user.getEmail());
         String insertQuery = generateSqlQuery(
-                "INSERT INTO user (email, first_name, last_name, credential) VALUES ('%s', '%s', '%s', '%s')",
+                "INSERT INTO user (username, email, first_name, last_name, credential) VALUES ('%s', '%s', '%s', '%s')",
+                user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -100,15 +96,19 @@ public class UserDaoH2 implements UserDao<Integer> {
         }
     }
 
-    private User updateUser(User user) {
-        String selectQuery = generateSqlQuery("SELECT * FROM user where email='%s'", user.getEmail());
+    @Override
+    public User updateByUsername(String username, User user) throws DataAccessException {
+        String selectQuery = generateSqlQuery(
+                "SELECT * FROM user where username='%s'",
+                user.getUsername());
+
         String updateQuery = generateSqlQuery(
-                "UPDATE user SET email = '%s', first_name = '%s', last_name = '%s', credential = '%s' WHERE ID=%s",
+                "UPDATE user SET email = '%s', first_name = '%s', last_name = '%s', credential = '%s' WHERE username=%s",
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getCredential(),
-                user.getUsername().toString());
+                user.getUsername());
 
         try (Statement stmt = createStatement()) {
             stmt.execute(updateQuery);
@@ -124,7 +124,7 @@ public class UserDaoH2 implements UserDao<Integer> {
 
         while (rs.next()) {
             User user = DefaultUser.Builder.anUserImp()
-                    .withId(rs.getInt("id"))
+                    .withUsername(rs.getString("username"))
                     .withEmail(rs.getString("email"))
                     .withFirstName(rs.getString("first_name"))
                     .withLastName(rs.getString("last_name"))
