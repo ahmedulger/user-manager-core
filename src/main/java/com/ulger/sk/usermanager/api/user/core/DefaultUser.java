@@ -15,6 +15,16 @@ public class DefaultUser implements User {
 
     private Integer hashCode;
 
+    public static User newInstance(String username, String email, String firstName, String lastName, String credential) {
+        return Builder.anUserImp()
+                .withUsername(username)
+                .withEmail(email)
+                .withFirstName(firstName)
+                .withLastName(lastName)
+                .withCredential(credential)
+                .build();
+    }
+
     @Override
     public String getUsername() {
         return username;

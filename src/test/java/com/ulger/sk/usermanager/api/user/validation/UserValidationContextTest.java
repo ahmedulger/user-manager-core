@@ -1,9 +1,8 @@
-package com.ulger.sk.usermanager.api.user.core;
+package com.ulger.sk.usermanager.api.user.validation;
 
+import com.ulger.sk.usermanager.api.user.core.MutableUserAdapter;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.password.SimplePasswordCheckingResult;
-import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
-import com.ulger.sk.usermanager.api.user.validation.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

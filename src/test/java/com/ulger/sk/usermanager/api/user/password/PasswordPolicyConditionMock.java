@@ -1,8 +1,4 @@
-package com.ulger.sk.usermanager.api.user;
-
-import com.ulger.sk.usermanager.api.user.password.PasswordCheckingResult;
-import com.ulger.sk.usermanager.api.user.password.PasswordPolicyCondition;
-import com.ulger.sk.usermanager.api.user.password.SimplePasswordCheckingResult;
+package com.ulger.sk.usermanager.api.user.password;
 
 import java.util.function.BiConsumer;
 

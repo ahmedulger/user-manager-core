@@ -5,7 +5,6 @@ import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
-import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
 import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
 import com.ulger.sk.usermanager.localization.I18NHelper;
