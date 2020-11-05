@@ -1,8 +1,8 @@
 package com.ulger.sk.usermanager.api.user.validation;
 
 import com.ulger.sk.usermanager.api.user.core.MutableUserAdapter;
-import com.ulger.sk.usermanager.api.user.password.DefaultPasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.DefaultPasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

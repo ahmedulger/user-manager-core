@@ -1,8 +1,8 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.password.DefaultPasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.password.PasswordEncoder;
-import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.DefaultPasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
+import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.TestReasonException;

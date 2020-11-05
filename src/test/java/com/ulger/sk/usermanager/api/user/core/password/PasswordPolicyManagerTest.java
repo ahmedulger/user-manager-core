@@ -1,4 +1,4 @@
-package com.ulger.sk.usermanager.api.user.password;
+package com.ulger.sk.usermanager.api.user.core.password;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,7 +2,7 @@ package com.ulger.sk.usermanager.api.user.validation;
 
 import com.ulger.sk.usermanager.api.user.core.UserModificationData;
 import com.ulger.sk.usermanager.api.user.core.UserOperation;
-import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.validator.routines.EmailValidator;

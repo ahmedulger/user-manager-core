@@ -1,7 +1,7 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.password.PasswordEncoder;
-import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
+import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;

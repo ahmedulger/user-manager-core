@@ -1,4 +1,4 @@
-package com.ulger.sk.usermanager.api.user.password;
+package com.ulger.sk.usermanager.api.user.core.password;
 
 public class DefaultPasswordLengthCondition implements PasswordPolicyCondition {
 

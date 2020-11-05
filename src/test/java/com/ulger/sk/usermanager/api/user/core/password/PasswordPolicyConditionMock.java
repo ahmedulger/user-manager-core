@@ -1,4 +1,4 @@
-package com.ulger.sk.usermanager.api.user.password;
+package com.ulger.sk.usermanager.api.user.core.password;
 
 import java.util.function.BiConsumer;
 

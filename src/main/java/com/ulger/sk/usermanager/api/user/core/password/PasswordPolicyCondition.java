@@ -1,4 +1,4 @@
-package com.ulger.sk.usermanager.api.user.password;
+package com.ulger.sk.usermanager.api.user.core.password;
 
 /**
  * This class is a step of rule or rules for password policy checking
