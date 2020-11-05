@@ -1,25 +1,20 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.event.UserModificationEvent;
-import com.ulger.sk.usermanager.api.user.event.UserModificationEventListener;
 import com.ulger.sk.usermanager.api.user.password.DefaultPasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.password.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
-import com.ulger.sk.usermanager.exception.ApiException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import com.ulger.sk.usermanager.exception.TestReasonException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.verification.api.VerificationData;
-import org.mockito.verification.VerificationMode;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 public class DefaultUserManagerTest {
 
@@ -51,7 +46,9 @@ public class DefaultUserManagerTest {
     @Test
     void test_null_data() {
         assertThrows(IllegalArgumentException.class, () -> userManager.createUser(null));
-        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(null));
+        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser("", null));
+        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(" ", null));
+        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(null,null));
     }
 
     @Test
@@ -119,7 +116,7 @@ public class DefaultUserManagerTest {
         data1.setLastName("lastname");
         data1.setHashPassword("hashpassword");
 
-        User updatedUser = userManager.updateUser(data1);
+        User updatedUser = userManager.updateUser(user.getUsername(), data1);
 
         assertTrue(hasSameData(updatedUser, data1));
         assertTrue(hasSameData(updatedUser, userManager.getUserByEmail(data1.getEmail())));
@@ -132,28 +129,28 @@ public class DefaultUserManagerTest {
 
         data1.setUsername(null);
         data1.setEmail(null);
-        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(data1));
-        assertThrows(IllegalArgumentException.class, () -> userManager.changePassword(data1));
+        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        assertThrows(IllegalArgumentException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
 
         data1.setEmail(email);
         data1.setFirstName("Ahmet");
-        assertEquals("Ahmet", userManager.updateUser(data1).getFirstName());
+        assertEquals("Ahmet", userManager.updateUser(data1.getUsername(), data1).getFirstName());
 
         data1.setEmail("unknown");
         data1.setFirstName("Ahmet2");
-        assertThrows(UserNotFoundException.class, () -> userManager.updateUser(data1));
-        assertThrows(UserNotFoundException.class, () -> userManager.changePassword(data1));
+        assertThrows(UserNotFoundException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        assertThrows(UserNotFoundException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
 
         data1.setEmail(email);
         data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet3");
-        assertEquals("Ahmet3", userManager.updateUser(data1).getFirstName());
+        assertEquals("Ahmet3", userManager.updateUser(data1.getUsername(), data1).getFirstName());
 
         data1.setEmail("changing");
         data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet4");
-        assertThrows(ApiException.class, () -> userManager.updateUser(data1));
-        assertThrows(ApiException.class, () -> userManager.changePassword(data1));
+        assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
     }
 
     @Test
@@ -193,13 +190,13 @@ public class DefaultUserManagerTest {
         data3.setUsername(data2.getUsername());
         data3.setEmail(data1.getEmail());
 
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> userManager.updateUser(data3));
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> userManager.updateUser(data3.getUsername(), data3));
         assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception.getCause()).getReason());
 
         data4.setUsername(data2.getUsername());
         data4.setEmail(data1.getEmail());
 
-        DataAccessException exception2 = assertThrows(DataAccessException.class, () -> userManager.updateUser(data4));
+        DataAccessException exception2 = assertThrows(DataAccessException.class, () -> userManager.updateUser(data4.getUsername(), data4));
         assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception2.getCause()).getReason());
 
         data5.setUsername(data2.getUsername());
@@ -207,7 +204,7 @@ public class DefaultUserManagerTest {
         data5.setLastName(data1.getLastName());
         data5.setHashPassword(data1.getHashPassword());
 
-        User updatedUser5 = userManager.updateUser(data5);
+        User updatedUser5 = userManager.updateUser(data5.getUsername(), data5);
         assertEquals(2, userDao.find().size());
         assertEquals(updatedUser5.getUsername(), data2.getUsername());
         assertEquals(updatedUser5.getDisplayName(), data1.getFirstName() + " " + data1.getLastName());
@@ -228,47 +225,8 @@ public class DefaultUserManagerTest {
         assertEquals("hashed", userDao.findByEmail(data1.getEmail()).getCredential());
 
         when(passwordEncoder.encode(anyString())).thenReturn("hashed2");
-        userManager.changePassword(data1);
+        userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential());
         assertEquals("hashed2", userDao.findByEmail(data1.getEmail()).getCredential());
-    }
-
-    @Test
-    void test_events() throws InterruptedException {
-        UserModificationEventListener listener = Mockito.mock(UserModificationEventListener.class);
-        UserModificationEventListener listener2 = Mockito.mock(UserModificationEventListener.class);
-        ((DefaultUserManager) userManager).addEventListener(listener);
-        ((DefaultUserManager) userManager).addEventListener(listener2);
-
-        when(listener.isAsync()).thenReturn(false);
-        when(listener2.isAsync()).thenReturn(true);
-
-        User user1 = userManager.createUser(data1);
-        verify(listener, times(1)).onModified(anyObject());
-        verify(listener, new VerificationMode() {
-            @Override
-            public void verify(VerificationData verificationData) {
-                UserModificationEvent event = (UserModificationEvent) verificationData.getAllInvocations().get(1).getRawArguments()[0];
-                assertEquals(UserModificationEvent.EventType.CREATE, event.getEventType());
-                assertEquals(data1, event.getModificationData());
-                assertEquals(data1.getEmail(), event.getModifiedData().getEmail());
-            }
-        }).onModified(anyObject());
-
-        data1.setUsername(user1.getUsername());
-        data1.setFirstName("Ahmet3");
-
-        userManager.updateUser(data1);
-        verify(listener, new VerificationMode() {
-            @Override
-            public void verify(VerificationData verificationData) {
-                UserModificationEvent event = (UserModificationEvent) verificationData.getAllInvocations().get(3).getRawArguments()[0];
-                assertEquals(UserModificationEvent.EventType.UPDATE, event.getEventType());
-                assertEquals(data1, event.getModificationData());
-                assertEquals(data1.getFirstName(), event.getModifiedData().getFirstName());
-            }
-        }).onModified(anyObject());
-
-        verify(listener2, times(2)).onModified(anyObject());
     }
 
     private static MutableUserAdapter getModificationData(String email, String firstName, String lastName, String password) {

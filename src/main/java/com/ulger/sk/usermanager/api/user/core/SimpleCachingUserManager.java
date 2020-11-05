@@ -1,7 +1,6 @@
 package com.ulger.sk.usermanager.api.user.core;
 
 import com.ulger.sk.usermanager.api.user.cache.SimpleUserCache;
-import com.ulger.sk.usermanager.api.user.event.UserModificationEventListener;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -18,10 +17,6 @@ public class SimpleCachingUserManager extends AbstractCachingUserManager {
     public SimpleCachingUserManager(UserManager userManager) {
         super(userManager);
         this.userCache = new SimpleUserCache();
-    }
-
-    public SimpleCachingUserManager(UserManager userManager, Collection<UserModificationEventListener> modificationEventListeners) {
-        super(userManager, modificationEventListeners);
     }
 
     @Override

@@ -33,9 +33,9 @@ public class PasswordPolicyManagerTest {
     }
 
     @Test
-    void test_configuration() {
-        PasswordPolicyConfiguration configuration = new PasswordPolicyConfiguration(MIN_PASS_LENGTH, MAX_PASS_LENGTH);
-        this.policyManager = new DefaultPasswordPolicyManager(configuration);
+    void test_default_password_length_condition() {
+        PasswordPolicyCondition condition = new DefaultPasswordLengthCondition(MIN_PASS_LENGTH, MAX_PASS_LENGTH);
+        this.policyManager = new DefaultPasswordPolicyManager(condition);
 
         PasswordCheckingResult result1 = policyManager.checkPolicy("a1");
         PasswordCheckingResult result2 = policyManager.checkPolicy("a123456");

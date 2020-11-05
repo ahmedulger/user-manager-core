@@ -47,7 +47,7 @@ public class SimpleCachingUserManagerTest {
         assertFalse(user1 == defaultUserManager.getUserByEmail(user1.getEmail()));
         assertTrue(user1 == cachingUserManager.getUserByEmail(user1.getEmail()));
 
-        User updatedUser = cachingUserManager.updateUser(data1);
+        User updatedUser = cachingUserManager.updateUser(data1.getUsername(), data1);
         assertFalse(user1 == updatedUser);
         assertFalse(updatedUser == defaultUserManager.getUserByEmail(user1.getEmail()));
         assertTrue(updatedUser == cachingUserManager.getUserByEmail(user1.getEmail()));

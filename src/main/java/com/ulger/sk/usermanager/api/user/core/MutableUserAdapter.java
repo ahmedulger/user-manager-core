@@ -17,15 +17,15 @@ public class MutableUserAdapter implements UserModificationData, User {
     private String rawPassword;
     private String hashPassword;
 
-    MutableUserAdapter() {
+    public MutableUserAdapter() {
     }
 
-    MutableUserAdapter(String username, UserModificationData modificationData) {
+    public  MutableUserAdapter(String username, UserModificationData modificationData) {
         this(modificationData);
         this.username = username;
     }
 
-    MutableUserAdapter(UserModificationData modificationData) {
+    public MutableUserAdapter(UserModificationData modificationData) {
         this.email = modificationData.getEmail();
         this.firstName = modificationData.getFirstName();
         this.lastName = modificationData.getLastName();
@@ -37,7 +37,7 @@ public class MutableUserAdapter implements UserModificationData, User {
         return username;
     }
 
-    void setUsername(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
@@ -46,7 +46,7 @@ public class MutableUserAdapter implements UserModificationData, User {
         return email;
     }
 
-    void setEmail(String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -55,7 +55,7 @@ public class MutableUserAdapter implements UserModificationData, User {
         return firstName;
     }
 
-    void setFirstName(String firstName) {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
@@ -64,7 +64,7 @@ public class MutableUserAdapter implements UserModificationData, User {
         return lastName;
     }
 
-    void setLastName(String lastName) {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
@@ -73,7 +73,7 @@ public class MutableUserAdapter implements UserModificationData, User {
         return rawPassword;
     }
 
-    void setRawPassword(String rawPassword) {
+    public void setRawPassword(String rawPassword) {
         this.rawPassword = rawPassword;
     }
 
@@ -85,7 +85,7 @@ public class MutableUserAdapter implements UserModificationData, User {
         return hashPassword;
     }
 
-    void setHashPassword(String hashPassword) {
+    public void setHashPassword(String hashPassword) {
         this.hashPassword = hashPassword;
     }
 

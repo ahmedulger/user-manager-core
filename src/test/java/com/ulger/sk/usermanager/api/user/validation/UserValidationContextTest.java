@@ -1,6 +1,7 @@
 package com.ulger.sk.usermanager.api.user.validation;
 
 import com.ulger.sk.usermanager.api.user.core.MutableUserAdapter;
+import com.ulger.sk.usermanager.api.user.core.UserOperation;
 import com.ulger.sk.usermanager.api.user.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.password.SimplePasswordCheckingResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +27,7 @@ public class UserValidationContextTest {
     @Test
     void test_invalid_operation_id() {
         MutableUserAdapter data = createSimpleData();
-        assertThrows(IllegalArgumentException.class, () -> validationContext.validate(data, 4).isValid());
+        assertThrows(IllegalArgumentException.class, () -> validationContext.validate(data, UserOperation.CREATE).isValid());
     }
 
     @Test
@@ -37,7 +38,7 @@ public class UserValidationContextTest {
 
     @Test
     void test_invalid_input() {
-        assertThrows(IllegalArgumentException.class, () -> validationContext.validate(null, UserValidationContext.OPERATION_CREATE).isValid());
+        assertThrows(IllegalArgumentException.class, () -> validationContext.validate(null, UserOperation.CREATE).isValid());
     }
 
     @Test
@@ -46,8 +47,8 @@ public class UserValidationContextTest {
 
         when(passwordPolicyManager.checkPolicy(anyString())).thenReturn(new SimplePasswordCheckingResult());
 
-        assertTrue(validationContext.validate(data, UserValidationContext.OPERATION_CREATE).isValid());
-        assertTrue(validationContext.validate(data, UserValidationContext.OPERATION_UPDATE).isValid());
+        assertTrue(validationContext.validate(data, UserOperation.CREATE).isValid());
+        assertTrue(validationContext.validate(data, UserOperation.UPDATE).isValid());
     }
 
     private MutableUserAdapter createSimpleData() {
@@ -58,6 +59,6 @@ public class UserValidationContextTest {
         data.setLastName("Ülger");
         data.setRawPassword("123");
 
-        return data;
+        return new MutableUserAdapter(data);
     }
 }

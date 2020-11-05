@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 public class DefaultPasswordPolicyManager implements PasswordPolicyManager {
@@ -17,6 +18,11 @@ public class DefaultPasswordPolicyManager implements PasswordPolicyManager {
     private I18NHelper i18NHelper;
 
     public DefaultPasswordPolicyManager() {
+        init();
+    }
+
+    public DefaultPasswordPolicyManager(PasswordPolicyCondition policyCondition) {
+        this.policyConditions = Arrays.asList(policyCondition);
         init();
     }
 
