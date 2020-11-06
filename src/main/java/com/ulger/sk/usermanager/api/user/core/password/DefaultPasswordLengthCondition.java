@@ -21,11 +21,11 @@ public class DefaultPasswordLengthCondition implements PasswordPolicyCondition {
         PasswordCheckingResult result = new SimplePasswordCheckingResult();
 
         if (password.length() < minLength) {
-            result.addError("");
+            result.addError("Password should be at least " + minLength + " characters long");
         }
 
         if (password.length() > maxLength) {
-            result.addError("");
+            result.addError("Password can not be longer than " + maxLength + " characters");
         }
 
         return result;

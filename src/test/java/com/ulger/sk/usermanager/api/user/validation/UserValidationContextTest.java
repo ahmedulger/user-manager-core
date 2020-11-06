@@ -2,6 +2,7 @@ package com.ulger.sk.usermanager.api.user.validation;
 
 import com.ulger.sk.usermanager.api.user.core.MockUserModificationData;
 import com.ulger.sk.usermanager.api.user.core.UserOperation;
+import com.ulger.sk.usermanager.api.user.core.UserValidationContextInitializer;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.core.password.SimplePasswordCheckingResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +22,7 @@ public class UserValidationContextTest {
     @BeforeEach
     void setUp() {
         this.passwordPolicyManager = Mockito.mock(PasswordPolicyManager.class);
-        this.validationContext = new UserValidationContext(passwordPolicyManager);
+        this.validationContext = UserValidationContextInitializer.getDefault(passwordPolicyManager);
     }
 
     @Test
