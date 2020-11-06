@@ -52,7 +52,7 @@ public class UpdatingUserValidator implements UserValidator {
 
         @Override
         boolean validateEmailAddress() {
-            if (!StringUtils.isEmpty(modificationData.getEmail())) {
+            if (StringUtils.isBlank(modificationData.getEmail())) {
                 addError(UserField.EMAIL, i18NHelper.getMessage("validation.email.notblank"));
                 return false;
             }

@@ -56,7 +56,7 @@ public class SimpleCachingUserManagerTest {
     private static MutableUserAdapter getModificationData(String email, String firstName, String lastName, String password) {
         MutableUserAdapter request = new MutableUserAdapter();
 
-        request.setUsername(email.substring(email.indexOf("@")));
+        request.setUsername(email.substring(0, email.indexOf("@")));
         request.setEmail(email);
         request.setFirstName(firstName);
         request.setLastName(lastName);

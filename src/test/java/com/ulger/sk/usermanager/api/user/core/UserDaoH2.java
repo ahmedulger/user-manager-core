@@ -102,7 +102,7 @@ public class UserDaoH2 implements UserDao {
                 user.getUsername());
 
         String updateQuery = generateSqlQuery(
-                "UPDATE user SET email = '%s', first_name = '%s', last_name = '%s', credential = '%s' WHERE username=%s",
+                "UPDATE user SET email = '%s', first_name = '%s', last_name = '%s', credential = '%s' WHERE username='%s'",
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
