@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user.validation;
 
-import com.ulger.sk.usermanager.api.user.core.MutableUserAdapter;
+import com.ulger.sk.usermanager.api.user.core.MockUserModificationData;
 import com.ulger.sk.usermanager.api.user.core.password.DefaultPasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -28,54 +28,54 @@ public class UserValidatorTest {
 
     @Test
     void test_email_validation() {
-        MutableUserAdapter mutableUserAdapter = createSimpleData();
-        assertTrue(validationStrategy.validate(mutableUserAdapter).isValid());
+        MockUserModificationData data = createSimpleData();
+        assertTrue(validationStrategy.validate(data).isValid());
 
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, " ", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, null, MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "abc", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "abc@", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "abc@com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "abc@.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "1@.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "1@1", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "@1.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, "@1.com.tr", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, " ", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, null, MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "abc", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "abc@", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "abc@com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "abc@.com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "1@.com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "1@1", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "@1.com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, false, "@1.com.tr", MockUserModificationData::getEmail, data::setEmail);
 
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, true, "abc@a.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, true, "a-a@a.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, true, "a-a@a.com.tr", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, true, "a-@a.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, true, "a-@a.com.tr", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, true, "-@a.com", MutableUserAdapter::getEmail, mutableUserAdapter::setEmail);
+        setAndTestAndRollback(validationStrategy, data, true, "abc@a.com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, true, "a-a@a.com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, true, "a-a@a.com.tr", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, true, "a-@a.com", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, true, "a-@a.com.tr", MockUserModificationData::getEmail, data::setEmail);
+        setAndTestAndRollback(validationStrategy, data, true, "-@a.com", MockUserModificationData::getEmail, data::setEmail);
     }
 
     @Test
     void test_password_validation() {
-        MutableUserAdapter mutableUserAdapter = createSimpleData();
-        assertTrue(validationStrategy.validate(mutableUserAdapter).isValid());
+        MockUserModificationData modificationData = createSimpleData();
+        assertTrue(validationStrategy.validate(modificationData).isValid());
 
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, " ", MutableUserAdapter::getRawPassword, mutableUserAdapter::setRawPassword);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, null, MutableUserAdapter::getRawPassword, mutableUserAdapter::setRawPassword);
+        setAndTestAndRollback(validationStrategy, modificationData, false, " ", MockUserModificationData::getRawPassword, modificationData::setRawPassword);
+        setAndTestAndRollback(validationStrategy, modificationData, false, null, MockUserModificationData::getRawPassword, modificationData::setRawPassword);
     }
 
     @Test
     void test_username_validation() {
-        MutableUserAdapter mutableUserAdapter = createSimpleData();
-        assertTrue(validationStrategy.validate(mutableUserAdapter).isValid());
+        MockUserModificationData modificationData = createSimpleData();
+        assertTrue(validationStrategy.validate(modificationData).isValid());
 
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, " ", MutableUserAdapter::getFirstName, mutableUserAdapter::setFirstName);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, null, MutableUserAdapter::getFirstName, mutableUserAdapter::setFirstName);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, " ", MutableUserAdapter::getLastName, mutableUserAdapter::setLastName);
-        setAndTestAndRollback(validationStrategy, mutableUserAdapter, false, null, MutableUserAdapter::getLastName, mutableUserAdapter::setLastName);
+        setAndTestAndRollback(validationStrategy, modificationData, false, " ", MockUserModificationData::getFirstName, modificationData::setFirstName);
+        setAndTestAndRollback(validationStrategy, modificationData, false, null, MockUserModificationData::getFirstName, modificationData::setFirstName);
+        setAndTestAndRollback(validationStrategy, modificationData, false, " ", MockUserModificationData::getLastName, modificationData::setLastName);
+        setAndTestAndRollback(validationStrategy, modificationData, false, null, MockUserModificationData::getLastName, modificationData::setLastName);
     }
 
     private void setAndTestAndRollback(
             UserValidator strategy,
-            MutableUserAdapter source,
+            MockUserModificationData source,
             boolean result,
             String newValue,
-            Function<MutableUserAdapter, String> fieldGetter,
+            Function<MockUserModificationData, String> fieldGetter,
             Consumer<String> fieldSetter) {
 
         String originalValue = fieldGetter.apply(source);
@@ -84,14 +84,14 @@ public class UserValidatorTest {
         fieldSetter.accept(originalValue);
     }
 
-    private MutableUserAdapter createSimpleData() {
-        MutableUserAdapter request = new MutableUserAdapter();
+    private MockUserModificationData createSimpleData() {
+        MockUserModificationData modificationData = new MockUserModificationData();
 
-        request.setEmail("abc@gmail.com");
-        request.setFirstName("Ahmet");
-        request.setLastName("Ülger");
-        request.setRawPassword("123");
+        modificationData.setEmail("abc@gmail.com");
+        modificationData.setFirstName("Ahmet");
+        modificationData.setLastName("Ülger");
+        modificationData.setRawPassword("123");
 
-        return request;
+        return modificationData;
     }
 }

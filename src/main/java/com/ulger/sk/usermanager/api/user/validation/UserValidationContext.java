@@ -47,12 +47,13 @@ public class UserValidationContext {
         return strategy.validate(modificationData);
     }
 
-    public void setValidationStrategy(UserOperation operation, UserValidator strategy) {
+    public UserValidationContext setValidationStrategy(UserOperation operation, UserValidator strategy) {
         if (validationStrategies.get(operation) != null) {
             logger.info("[addValidationStrategy] Validation strategy found with operation. Strategy will be overridden :: operation={}, validationStrategy={}", operation, strategy);
         }
 
         validationStrategies.put(operation, strategy);
+        return this;
     }
 
     @Override

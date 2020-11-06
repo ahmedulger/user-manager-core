@@ -1,7 +1,6 @@
 package com.ulger.sk.usermanager.api.user.core;
 
 import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
-import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
@@ -35,8 +34,8 @@ public class DefaultUserManager implements UserManager {
      * If no event listener given than any events will be published after user modification
      * @param userDao
      */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao) {
-        this.userValidationContext = new UserValidationContext(passwordPolicyManager);
+    public DefaultUserManager(PasswordEncoder passwordEncoder, UserValidationContext userValidationContext, UserDao userDao) {
+        this.userValidationContext = userValidationContext;
         this.passwordEncoder = passwordEncoder;
         this.userDao = userDao;
         init();
@@ -47,8 +46,8 @@ public class DefaultUserManager implements UserManager {
      * If no event listener given than any events will be published after user modification
      * @param userDao
      */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, PasswordPolicyManager passwordPolicyManager, UserDao userDao, I18NHelper i18nHelper) {
-        this(passwordEncoder, passwordPolicyManager, userDao);
+    public DefaultUserManager(PasswordEncoder passwordEncoder, UserValidationContext userValidationContext, UserDao userDao, I18NHelper i18nHelper) {
+        this(passwordEncoder, userValidationContext, userDao);
         this.i18NHelper = i18nHelper;
         init();
     }

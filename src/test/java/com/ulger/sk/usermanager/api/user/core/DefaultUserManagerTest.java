@@ -34,7 +34,7 @@ public class DefaultUserManagerTest {
         this.userDao = new UserDaoH2();
         this.passwordEncoder = Mockito.mock(PasswordEncoder.class);
         this.passwordPolicyManager = new DefaultPasswordPolicyManager();
-        this.userManager = new DefaultUserManager(passwordEncoder, passwordPolicyManager, userDao);
+        this.userManager = new DefaultUserManager(passwordEncoder, UserValidationContextInitializer.getDefault(passwordPolicyManager), userDao);
     }
 
     @Test

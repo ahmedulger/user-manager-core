@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user.validation;
 
-import com.ulger.sk.usermanager.api.user.core.MutableUserAdapter;
+import com.ulger.sk.usermanager.api.user.core.MockUserModificationData;
 import com.ulger.sk.usermanager.api.user.core.UserOperation;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.core.password.SimplePasswordCheckingResult;
@@ -26,13 +26,13 @@ public class UserValidationContextTest {
 
     @Test
     void test_invalid_operation_id() {
-        MutableUserAdapter data = createSimpleData();
+        MockUserModificationData data = createSimpleData();
         assertThrows(IllegalArgumentException.class, () -> validationContext.validate(data, UserOperation.CREATE).isValid());
     }
 
     @Test
     void test_invalid_strategy() {
-        MutableUserAdapter data = createSimpleData();
+        MockUserModificationData data = createSimpleData();
         assertThrows(IllegalArgumentException.class, () -> validationContext.validate(data, (UserValidator) null).isValid());
     }
 
@@ -43,7 +43,7 @@ public class UserValidationContextTest {
 
     @Test
     void test_valid_operation_id() {
-        MutableUserAdapter data = createSimpleData();
+        MockUserModificationData data = createSimpleData();
 
         when(passwordPolicyManager.checkPolicy(anyString())).thenReturn(new SimplePasswordCheckingResult());
 
@@ -51,14 +51,14 @@ public class UserValidationContextTest {
         assertTrue(validationContext.validate(data, UserOperation.UPDATE).isValid());
     }
 
-    private MutableUserAdapter createSimpleData() {
-        MutableUserAdapter data = new MutableUserAdapter();
+    private MockUserModificationData createSimpleData() {
+        MockUserModificationData data = new MockUserModificationData();
 
         data.setEmail("abc@gmail.com");
         data.setFirstName("Ahmet");
         data.setLastName("Ülger");
         data.setRawPassword("123");
 
-        return new MutableUserAdapter(data);
+        return data;
     }
 }

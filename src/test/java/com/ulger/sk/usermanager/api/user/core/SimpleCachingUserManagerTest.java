@@ -29,7 +29,7 @@ public class SimpleCachingUserManagerTest {
         this.userDao = new UserDaoH2();
         this.passwordEncoder = Mockito.mock(PasswordEncoder.class);
         this.passwordPolicyManager = new DefaultPasswordPolicyManager();
-        this.defaultUserManager = new DefaultUserManager(passwordEncoder, passwordPolicyManager, userDao);
+        this.defaultUserManager = new DefaultUserManager(passwordEncoder, UserValidationContextInitializer.getDefault(passwordPolicyManager), userDao);
         this.cachingUserManager = new SimpleCachingUserManager(defaultUserManager);
     }
 
