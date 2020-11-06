@@ -79,7 +79,7 @@ public class UserDaoH2 implements UserDao {
                 user.getUsername());
 
         String insertQuery = generateSqlQuery(
-                "INSERT INTO user (username, email, first_name, last_name, credential) VALUES ('%s', '%s', '%s', '%s')",
+                "INSERT INTO user (username, email, first_name, last_name, credential) VALUES ('%s', '%s', '%s', '%s', '%s')",
                 user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),
