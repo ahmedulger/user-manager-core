@@ -30,6 +30,7 @@ public class ChangingPasswordValidator implements UserValidator {
         }
 
         ValidationHelper validationHelper = new ValidationHelper(null, passwordPolicyManager, i18NHelper, modificationData);
+        validationHelper.validateUsername();
         validationHelper.validateAllPassword();
 
         return validationHelper.getValidationResult();

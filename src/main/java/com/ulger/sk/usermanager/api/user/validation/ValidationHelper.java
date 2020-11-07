@@ -49,6 +49,17 @@ class ValidationHelper {
         return validationResult;
     }
 
+    boolean validateUsername() {
+        String username = modificationData.getUsername();
+
+        if (StringUtils.isBlank(username)) {
+            addError(UserField.USERNAME, i18NHelper.getMessage("validation.username.blank"));
+            return false;
+        }
+
+        return false;
+    }
+
     boolean validateEmailAddress() {
         if (StringUtils.isEmpty(modificationData.getEmail())) {
             addError(UserField.EMAIL, i18NHelper.getMessage("validation.email.blank"));
@@ -88,7 +99,7 @@ class ValidationHelper {
         return true;
     }
 
-    boolean validateUserName() {
+    boolean validateFullName() {
         String firstName = modificationData.getFirstName();
         String lastName = modificationData.getLastName();
 

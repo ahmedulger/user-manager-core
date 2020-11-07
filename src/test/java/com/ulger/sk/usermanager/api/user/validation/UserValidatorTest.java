@@ -87,6 +87,7 @@ public class UserValidatorTest {
     private MockUserModificationData createSimpleData() {
         MockUserModificationData modificationData = new MockUserModificationData();
 
+        modificationData.setUsername("abc");
         modificationData.setEmail("abc@gmail.com");
         modificationData.setFirstName("Ahmet");
         modificationData.setLastName("Ülger");

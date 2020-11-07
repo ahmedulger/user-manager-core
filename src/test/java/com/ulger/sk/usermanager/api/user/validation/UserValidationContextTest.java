@@ -28,6 +28,7 @@ public class UserValidationContextTest {
     @Test
     void test_invalid_operation_id() {
         MockUserModificationData data = createSimpleData();
+        validationContext.setValidationStrategy(UserOperation.CREATE, null);
         assertThrows(IllegalArgumentException.class, () -> validationContext.validate(data, UserOperation.CREATE).isValid());
     }
 
@@ -55,6 +56,7 @@ public class UserValidationContextTest {
     private MockUserModificationData createSimpleData() {
         MockUserModificationData data = new MockUserModificationData();
 
+        data.setUsername("abc");
         data.setEmail("abc@gmail.com");
         data.setFirstName("Ahmet");
         data.setLastName("Ülger");

@@ -19,8 +19,9 @@ public class MockUserValidator implements UserValidator {
     @Override
     public UserValidationResult validate(UserModificationData userModificationData) {
         validationHelper = new ValidationHelper(emailValidator, passwordPolicyManager, new DefaultI18NHelper(), userModificationData);
+        validationHelper.validateUsername();
         validationHelper.validateEmailAddress();
-        validationHelper.validateUserName();
+        validationHelper.validateFullName();
         validationHelper.validatePassword();
         validationHelper.validatePasswordPolicy();
 

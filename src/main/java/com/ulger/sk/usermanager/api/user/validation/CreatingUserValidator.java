@@ -33,8 +33,9 @@ public class CreatingUserValidator implements UserValidator {
         }
 
         ValidationHelper validationHelper = new ValidationHelper(emailValidator, passwordPolicyManager, i18NHelper, modificationData);
+        validationHelper.validateUsername();
         validationHelper.validateEmailAddress();
-        validationHelper.validateUserName();
+        validationHelper.validateFullName();
         validationHelper.validateAllPassword();
 
         return validationHelper.getValidationResult();
