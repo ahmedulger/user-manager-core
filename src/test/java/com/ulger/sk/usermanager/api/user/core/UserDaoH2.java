@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -40,7 +41,7 @@ public class UserDaoH2 implements UserDao {
 
     @Override
     public User findByEmail(String email) throws DataAccessException {
-        String query = generateSqlQuery("SELECT * FROM user where email='%s'", email);
+        String query = generateSqlQuery("SELECT * FROM user where email=%s", email);
 
         try (Statement stmt = createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
@@ -75,11 +76,11 @@ public class UserDaoH2 implements UserDao {
     @Override
     public User create(User user) throws DataAccessException {
         String selectQuery = generateSqlQuery(
-                "SELECT * FROM user where username='%s'",
+                "SELECT * FROM user where username=%s",
                 user.getUsername());
 
         String insertQuery = generateSqlQuery(
-                "INSERT INTO user (username, email, first_name, last_name, credential) VALUES ('%s', '%s', '%s', '%s', '%s')",
+                "INSERT INTO user (username, email, first_name, last_name, credential) VALUES (%s, %s, %s, %s, %s)",
                 user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),
@@ -98,16 +99,16 @@ public class UserDaoH2 implements UserDao {
     @Override
     public User updateByUsername(String username, User user) throws DataAccessException {
         String selectQuery = generateSqlQuery(
-                "SELECT * FROM user where username='%s'",
-                user.getUsername());
+                "SELECT * FROM user where username=%s",
+                username);
 
         String updateQuery = generateSqlQuery(
-                "UPDATE user SET email = '%s', first_name = '%s', last_name = '%s', credential = '%s' WHERE username='%s'",
+                "UPDATE user SET email = %s, first_name = %s, last_name = %s, credential = %s WHERE username=%s",
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getCredential(),
-                user.getUsername());
+                username);
 
         try (Statement stmt = createStatement()) {
             stmt.execute(updateQuery);
@@ -116,6 +117,11 @@ public class UserDaoH2 implements UserDao {
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
+    }
+
+    @Override
+    public User updatePasswordByUsername(String username, String password) throws DataAccessException {
+        return null;
     }
 
     private List<User> extractResultSet(ResultSet rs) throws SQLException {
@@ -137,6 +143,11 @@ public class UserDaoH2 implements UserDao {
     }
 
     private String generateSqlQuery(String template, String...params) {
+        params = Arrays
+                .stream(params)
+                .map(s -> s == null ? null : String.format("'%s'", s))
+                .toArray(String[]::new);
+
         return String.format(template, params);
     }
 

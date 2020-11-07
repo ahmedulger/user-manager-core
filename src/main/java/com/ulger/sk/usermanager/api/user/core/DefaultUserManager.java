@@ -169,6 +169,8 @@ public class DefaultUserManager implements UserManager {
             throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
         }
 
+       // mutableUserAdapter.updateBy(user);
+
         // Update user's raw password to the hashed password
         encryptPassword(mutableUserAdapter);
 

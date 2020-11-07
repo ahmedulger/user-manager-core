@@ -223,6 +223,7 @@ public class DefaultUserManagerTest {
         when(passwordEncoder.encode(anyString())).thenReturn("hashed");
         userManager.createUser(data1);
         assertEquals("hashed", userDao.findByEmail(data1.getEmail()).getCredential());
+        data1.setHashPassword("hashed");
 
         when(passwordEncoder.encode(anyString())).thenReturn("hashed2");
         userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential());

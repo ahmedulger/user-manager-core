@@ -20,6 +20,14 @@ public class MutableUserAdapter implements UserModificationData, User {
     MutableUserAdapter() {
     }
 
+    MutableUserAdapter(User user) {
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.hashPassword = user.getCredential();
+    }
+
     MutableUserAdapter(UserModificationData modificationData) {
         this.username = modificationData.getUsername();
         this.email = modificationData.getEmail();

@@ -37,6 +37,7 @@ public class UpdatingUserValidator implements UserValidator {
         UpdateValidationHelper validationHelper = createValidationHelper(modificationData);
         validationHelper.validateUsername();
         validationHelper.validateEmailAddress();
+        validationHelper.validateFullName();
 
         return validationHelper.getValidationResult();
     }

@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 public class SimpleCachingUserManagerTest {
 
@@ -35,6 +37,7 @@ public class SimpleCachingUserManagerTest {
 
     @Test
     void test_create_none_existing_user() {
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
         User user1 = cachingUserManager.createUser(data1);
 
         assertFalse(user1 == defaultUserManager.getUserByEmail(user1.getEmail()));
@@ -43,10 +46,12 @@ public class SimpleCachingUserManagerTest {
 
     @Test
     void test_update_check_cache() {
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
         User user1 = cachingUserManager.createUser(data1);
         assertFalse(user1 == defaultUserManager.getUserByEmail(user1.getEmail()));
         assertTrue(user1 == cachingUserManager.getUserByEmail(user1.getEmail()));
 
+        when(passwordEncoder.encode(anyString())).thenReturn(null);
         User updatedUser = cachingUserManager.updateUser(data1.getUsername(), data1);
         assertFalse(user1 == updatedUser);
         assertFalse(updatedUser == defaultUserManager.getUserByEmail(user1.getEmail()));
@@ -61,6 +66,7 @@ public class SimpleCachingUserManagerTest {
         request.setFirstName(firstName);
         request.setLastName(lastName);
         request.setRawPassword(password);
+        request.setHashPassword(password);
 
         return request;
     }

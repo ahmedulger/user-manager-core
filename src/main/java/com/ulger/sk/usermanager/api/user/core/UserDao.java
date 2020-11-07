@@ -54,4 +54,13 @@ public interface UserDao {
      * @return
      */
     User updateByUsername(String username, User user) throws DataAccessException;
+
+    /**
+     *
+     * @param username
+     * @param password
+     * @throws DataAccessException
+     * @return
+     */
+    User updatePasswordByUsername(String username, String password) throws DataAccessException;
 }
