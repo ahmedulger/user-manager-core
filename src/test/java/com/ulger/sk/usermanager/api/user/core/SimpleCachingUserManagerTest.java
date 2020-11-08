@@ -15,10 +15,6 @@ import static org.mockito.Mockito.when;
 public class SimpleCachingUserManagerTest {
 
     final MutableUserAdapter data1 = getModificationData("email1@gmail.com", "fn1", "ln1", "hpw1");
-    final MutableUserAdapter data2 = getModificationData("email2@gmail.com", "fn2", "ln2", "hpw2");
-    final MutableUserAdapter data3 = getModificationData("email3@gmail.com", "fn3", "ln3", "hpw3");
-    final MutableUserAdapter data4 = getModificationData("email4@gmail.com", "fn4", "ln4", "hpw4");
-    final MutableUserAdapter data5 = getModificationData("email5@gmail.com", "fn5", "ln5", "hpw5");
 
     private UserDao userDao;
     private PasswordEncoder passwordEncoder;

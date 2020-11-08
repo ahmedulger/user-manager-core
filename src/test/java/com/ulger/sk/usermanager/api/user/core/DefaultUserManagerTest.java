@@ -1,20 +1,18 @@
 package com.ulger.sk.usermanager.api.user.core;
 
 import com.ulger.sk.usermanager.api.user.core.password.DefaultPasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.core.password.MockPasswordEncoder;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
-import com.ulger.sk.usermanager.exception.TestReasonException;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 public class DefaultUserManagerTest {
 
@@ -32,7 +30,7 @@ public class DefaultUserManagerTest {
     @BeforeEach
     void setUp() {
         this.userDao = new UserDaoH2();
-        this.passwordEncoder = Mockito.mock(PasswordEncoder.class);
+        this.passwordEncoder = new MockPasswordEncoder("hashed");
         this.passwordPolicyManager = new DefaultPasswordPolicyManager();
         this.userManager = new DefaultUserManager(passwordEncoder, UserValidationContextInitializer.getDefault(passwordPolicyManager), userDao);
     }
@@ -45,10 +43,10 @@ public class DefaultUserManagerTest {
 
     @Test
     void test_null_data() {
-        assertThrows(IllegalArgumentException.class, () -> userManager.createUser(null));
-        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser("", null));
-        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(" ", null));
-        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(null,null));
+        assertThrows(UserOperationException.class, () -> userManager.createUser(null));
+        assertThrows(UserOperationException.class, () -> userManager.updateUser("", null));
+        assertThrows(UserOperationException.class, () -> userManager.updateUser(" ", null));
+        assertThrows(UserOperationException.class, () -> userManager.updateUser(null,null));
     }
 
     @Test
@@ -58,10 +56,10 @@ public class DefaultUserManagerTest {
         data3.setLastName(" ");
         data4.setRawPassword(" ");
 
-        assertThrows(ValidationException.class, () -> userManager.createUser(data1));
-        assertThrows(ValidationException.class, () -> userManager.createUser(data2));
-        assertThrows(ValidationException.class, () -> userManager.createUser(data3));
-        assertThrows(ValidationException.class, () -> userManager.createUser(data4));
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
     }
 
     @Test
@@ -71,10 +69,10 @@ public class DefaultUserManagerTest {
         data3.setLastName(null);
         data4.setRawPassword(null);
 
-        assertThrows(ValidationException.class, () -> userManager.createUser(data1));
-        assertThrows(ValidationException.class, () -> userManager.createUser(data2));
-        assertThrows(ValidationException.class, () -> userManager.createUser(data3));
-        assertThrows(ValidationException.class, () -> userManager.createUser(data4));
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
     }
 
     @Test
@@ -129,8 +127,11 @@ public class DefaultUserManagerTest {
 
         data1.setUsername(null);
         data1.setEmail(null);
-        assertThrows(IllegalArgumentException.class, () -> userManager.updateUser(data1.getUsername(), data1));
-        assertThrows(IllegalArgumentException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
+        Exception exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
+
+        exception = assertThrows(IllegalArgumentException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
+        assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
 
         data1.setEmail(email);
         data1.setFirstName("Ahmet");
@@ -162,13 +163,13 @@ public class DefaultUserManagerTest {
 
         data3.setEmail(data2.getEmail());
 
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> userManager.createUser(data3));
-        assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception.getCause()).getReason());
+        UserOperationException exception = assertThrows(UserOperationException.class, () -> userManager.createUser(data3));
+        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
 
         data4.setEmail(data2.getEmail());
 
-        DataAccessException exception2 = assertThrows(DataAccessException.class, () -> userManager.createUser(data4));
-        assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception2.getCause()).getReason());
+        UserOperationException exception2 = assertThrows(UserOperationException.class, () -> userManager.createUser(data4));
+        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
 
         data5.setFirstName(data2.getFirstName());
         data5.setLastName(data2.getLastName());
@@ -190,14 +191,16 @@ public class DefaultUserManagerTest {
         data3.setUsername(data2.getUsername());
         data3.setEmail(data1.getEmail());
 
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> userManager.updateUser(data3.getUsername(), data3));
-        assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception.getCause()).getReason());
+        UserOperationException exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data3.getUsername(), data3));
+        assertTrue(exception.getCause() instanceof DataAccessException);
+        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
 
         data4.setUsername(data2.getUsername());
         data4.setEmail(data1.getEmail());
 
-        DataAccessException exception2 = assertThrows(DataAccessException.class, () -> userManager.updateUser(data4.getUsername(), data4));
-        assertEquals(TestReasonException.Reason.UNIQUE_FIELD, ((TestReasonException) exception2.getCause()).getReason());
+        UserOperationException exception2 = assertThrows(UserOperationException.class, () -> userManager.updateUser(data4.getUsername(), data4));
+        assertTrue(exception.getCause() instanceof DataAccessException);
+        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
 
         data5.setUsername(data2.getUsername());
         data5.setFirstName(data1.getFirstName());
@@ -212,7 +215,6 @@ public class DefaultUserManagerTest {
 
     @Test
     void test_encrypt_password() {
-        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
         userManager.createUser(data1);
 
         assertEquals("hashed", userDao.findByEmail(data1.getEmail()).getCredential());
@@ -220,13 +222,11 @@ public class DefaultUserManagerTest {
 
     @Test
     void test_change_password() {
-        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
         userManager.createUser(data1);
         assertEquals("hashed", userDao.findByEmail(data1.getEmail()).getCredential());
         data1.setHashPassword("hashed");
 
-        when(passwordEncoder.encode(anyString())).thenReturn("hashed2");
-        userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential());
+        userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential());
         assertEquals("hashed2", userDao.findByEmail(data1.getEmail()).getCredential());
     }
 

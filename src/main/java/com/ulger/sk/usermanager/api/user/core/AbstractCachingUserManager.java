@@ -52,6 +52,12 @@ public abstract class AbstractCachingUserManager implements UserManager {
     protected abstract Collection<User> getAllUsersFromCache();
 
     /**
+     * This method refresh single user on cache by query'in data source
+     * @param email
+     */
+    protected abstract void refreshSingleUserOnCache(String email);
+
+    /**
      * Refreshes cache
      */
     protected abstract void refreshCache();
@@ -162,18 +168,9 @@ public abstract class AbstractCachingUserManager implements UserManager {
     }
 
     @Override
-    public User changePassword(String username, String oldPassword, String newPassword) {
-        User user = userManager.changePassword(username, oldPassword, newPassword);
-
-        if (user != null) {
-            addUserToCache(user);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("[changePassword] user's password has been changed and put cache :: email={}", user.getEmail());
-            }
-        }
-
-        return user;
+    public void changePassword(String email, String oldPassword, String newPassword) {
+        userManager.changePassword(email, oldPassword, newPassword);
+        refreshSingleUserOnCache(email);
     }
 
     @Override

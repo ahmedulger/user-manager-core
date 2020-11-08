@@ -35,6 +35,17 @@ public class SimpleCachingUserManager extends AbstractCachingUserManager {
     }
 
     @Override
+    protected void refreshSingleUserOnCache(String email) {
+        User user = getUserByEmail(email);
+        if (user == null) {
+            logger.error("User not found :: email={}", email);
+            throw new NullPointerException("User not found by email '" + email + "'");
+        }
+
+        userCache.add(user);
+    }
+
+    @Override
     protected synchronized void refreshCache() {
         try {
             logger.info("[refreshCache] Refreshing cache");

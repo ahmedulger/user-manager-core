@@ -2,6 +2,8 @@ package com.ulger.sk.usermanager.api.user.core;
 
 import com.ulger.sk.usermanager.exception.DataAccessException;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.sql.*;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class UserDaoH2 implements UserDao {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserDaoH2.class);
 
     public UserDaoH2() {
         generateSchema();
@@ -35,6 +39,7 @@ public class UserDaoH2 implements UserDao {
             return null;
 
         } catch (Exception e) {
+            logger.error("Error occurred while finding user by username", e);
             throw new DataAccessException(e);
         }
     }
@@ -57,6 +62,7 @@ public class UserDaoH2 implements UserDao {
 
             return null;
         } catch (Exception e) {
+            logger.error("Error occurred while finding user by email", e);
             throw new DataAccessException(e);
         }
     }
@@ -69,6 +75,7 @@ public class UserDaoH2 implements UserDao {
             ResultSet rs = stmt.executeQuery(query);
             return extractResultSet(rs);
         } catch (Exception e) {
+            logger.error("Error occurred while operating on db", e);
             throw new DataAccessException(e);
         }
     }
@@ -92,6 +99,7 @@ public class UserDaoH2 implements UserDao {
             ResultSet rs = stmt.executeQuery(selectQuery);
             return extractResultSet(rs).get(0);
         } catch (Exception e) {
+            logger.error("Error occurred while creating user", e);
             throw new DataAccessException(e);
         }
     }
@@ -103,11 +111,10 @@ public class UserDaoH2 implements UserDao {
                 username);
 
         String updateQuery = generateSqlQuery(
-                "UPDATE user SET email = %s, first_name = %s, last_name = %s, credential = %s WHERE username=%s",
+                "UPDATE user SET email = %s, first_name = %s, last_name = %s WHERE username=%s",
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getCredential(),
                 username);
 
         try (Statement stmt = createStatement()) {
@@ -115,13 +122,28 @@ public class UserDaoH2 implements UserDao {
             ResultSet rs = stmt.executeQuery(selectQuery);
             return extractResultSet(rs).get(0);
         } catch (Exception e) {
+            logger.error("Error occurred while updating user", e);
             throw new DataAccessException(e);
         }
     }
 
     @Override
-    public User updatePasswordByUsername(String username, String password) throws DataAccessException {
-        return null;
+    public void updatePasswordByUsername(String username, String password) throws DataAccessException {
+        String selectQuery = generateSqlQuery(
+                "SELECT * FROM user where username=%s",
+                username);
+
+        String updateQuery = generateSqlQuery(
+                "UPDATE user SET credential = %s WHERE username=%s",
+                password,
+                username);
+
+        try (Statement stmt = createStatement()) {
+            stmt.execute(updateQuery);
+        } catch (Exception e) {
+            logger.error("Error occurred while updating password", e);
+            throw new DataAccessException(e);
+        }
     }
 
     private List<User> extractResultSet(ResultSet rs) throws SQLException {

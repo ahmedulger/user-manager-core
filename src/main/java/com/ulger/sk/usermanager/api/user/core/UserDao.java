@@ -47,20 +47,21 @@ public interface UserDao {
     User create(User user) throws DataAccessException;
 
     /**
+     * Updates user information expect password
      *
      * @param username
      * @param user
      * @throws DataAccessException
-     * @return
+     * @return updated instance
      */
     User updateByUsername(String username, User user) throws DataAccessException;
 
     /**
+     * Updates password
      *
      * @param username
      * @param password
      * @throws DataAccessException
-     * @return
      */
-    User updatePasswordByUsername(String username, String password) throws DataAccessException;
+    void updatePasswordByUsername(String username, String password) throws DataAccessException;
 }
