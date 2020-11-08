@@ -143,10 +143,10 @@ public class DefaultUserManagerTest {
         data1.setUsername("unknown");
         data1.setFirstName("Ahmet2");
         exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
-        // assertEquals(IllegalParameterException.class, exception.getCause().getClass());
+        assertEquals(DataAccessException.class, exception.getCause().getClass());
 
         exception = assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw12345", data1.getCredential()));
-        assertEquals(UserNotFoundException.class, exception.getCause().getClass());
+        assertEquals(ValidationException.class, exception.getCause().getClass());
 
         data1.setEmail(email);
         data1.setUsername(user.getUsername());
