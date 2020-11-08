@@ -110,7 +110,7 @@ public class DefaultUserManagerTest {
         assertTrue(hasSameData(userManager.getUserByEmail(data1.getEmail()), data1));
 
         data1.setUsername(user.getUsername());
-        data1.setEmail("email");
+        data1.setEmail("email@gmail.com");
         data1.setFirstName("firstname");
         data1.setLastName("lastname");
         data1.setHashPassword("hashpassword");
@@ -141,7 +141,6 @@ public class DefaultUserManagerTest {
         assertEquals("Ahmet", userManager.updateUser(data1.getUsername(), data1).getFirstName());
 
         data1.setUsername("unknown");
-        data1.setEmail("unknown");
         data1.setFirstName("Ahmet2");
         exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
         assertEquals(IllegalParameterException.class, exception.getCause().getClass());
