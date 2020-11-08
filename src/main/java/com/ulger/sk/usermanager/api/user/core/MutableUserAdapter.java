@@ -114,7 +114,7 @@ public class MutableUserAdapter implements UserModificationData, User {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                .append("id", username)
+                .append("username", username)
                 .append("email", email)
                 .append("firstName", firstName)
                 .append("lastName", lastName)
