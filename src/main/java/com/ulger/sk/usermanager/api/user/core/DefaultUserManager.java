@@ -149,31 +149,37 @@ public class DefaultUserManager implements UserManager {
 
     @Override
     public void changePassword(String email, String oldPassword, String newPassword) {
-        logger.info("[changePassword] User's password is updating :: email={}", email);
+        try {
+            logger.info("[changePassword] User's password is updating :: email={}", email);
 
-        if (Objects.isNull(email)) {
-            throw new IllegalParameterException(UserField.EMAIL.getName(), "email should be given");
+            if (Objects.isNull(email)) {
+                throw new IllegalParameterException(UserField.EMAIL.getName(), "email should be given");
+            }
+
+            MutableUserAdapter mutableUserAdapter = new MutableUserAdapter();
+            mutableUserAdapter.setRawPassword(newPassword);
+            validate(mutableUserAdapter, UserOperation.CHANGE_PASSWORD);
+
+            User user = userDao.findByEmail(email);
+            if (user == null) {
+                throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found.email", email));
+            }
+
+            if (!passwordEncoder.matches(oldPassword, user.getCredential())) {
+                throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
+            }
+
+            // Update user's raw password to the hashed password
+            encryptPassword(mutableUserAdapter);
+
+            userDao.updatePasswordByUsername(user.getUsername(), mutableUserAdapter.getHashPassword());
+
+            logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
+
+        } catch (Exception e) {
+            logger.error("Unable to change password", e);
+            throw new UserOperationException("Unable to change password", e);
         }
-
-        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter();
-        mutableUserAdapter.setRawPassword(oldPassword);
-        validate(mutableUserAdapter, UserOperation.CHANGE_PASSWORD);
-
-        User user = userDao.findByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found.email", email));
-        }
-
-        if (passwordEncoder.matches(oldPassword, user.getCredential())) {
-            throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
-        }
-
-        // Update user's raw password to the hashed password
-        encryptPassword(mutableUserAdapter);
-
-        userDao.updatePasswordByUsername(user.getUsername(), mutableUserAdapter.getHashPassword());
-
-        logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
     }
 
     private void encryptPassword(MutableUserAdapter mutableUserAdapter) {

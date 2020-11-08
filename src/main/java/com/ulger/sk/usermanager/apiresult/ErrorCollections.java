@@ -11,4 +11,8 @@ public class ErrorCollections {
 
         return errorCollection;
     }
+
+    public static String toString(ErrorCollection errorCollection) {
+        return errorCollection.getErrors().values().toString();
+    }
 }

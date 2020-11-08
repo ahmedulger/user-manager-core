@@ -6,6 +6,7 @@ import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
 import com.ulger.sk.usermanager.exception.DataAccessException;
+import com.ulger.sk.usermanager.exception.IllegalParameterException;
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,6 +123,7 @@ public class DefaultUserManagerTest {
 
     @Test
     void test_update_illegal_attempting() {
+        String username = data1.getUsername();
         String email = data1.getEmail();
         User user = userManager.createUser(data1);
 
@@ -130,17 +132,21 @@ public class DefaultUserManagerTest {
         Exception exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
         assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
 
-        exception = assertThrows(IllegalArgumentException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
-        assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
+        exception = assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential()));
+        assertEquals(IllegalParameterException.class, exception.getCause().getClass());
 
+        data1.setUsername(username);
         data1.setEmail(email);
         data1.setFirstName("Ahmet");
         assertEquals("Ahmet", userManager.updateUser(data1.getUsername(), data1).getFirstName());
 
+        data1.setUsername("unknown");
         data1.setEmail("unknown");
         data1.setFirstName("Ahmet2");
-        assertThrows(UserNotFoundException.class, () -> userManager.updateUser(data1.getUsername(), data1));
-        assertThrows(UserNotFoundException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
+        exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        assertEquals(IllegalParameterException.class, exception.getCause().getClass());
+
+        assertThrows(UserNotFoundException.class, () -> userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential()));
 
         data1.setEmail(email);
         data1.setUsername(user.getUsername());
@@ -151,7 +157,7 @@ public class DefaultUserManagerTest {
         data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet4");
         assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
-        assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getUsername(), "hpw1", data1.getCredential()));
+        assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential()));
     }
 
     @Test
@@ -217,17 +223,16 @@ public class DefaultUserManagerTest {
     void test_encrypt_password() {
         userManager.createUser(data1);
 
-        assertEquals("hashed", userDao.findByEmail(data1.getEmail()).getCredential());
+        assertEquals("hashed" + data1.getRawPassword(), userDao.findByEmail(data1.getEmail()).getCredential());
     }
 
     @Test
     void test_change_password() {
         userManager.createUser(data1);
-        assertEquals("hashed", userDao.findByEmail(data1.getEmail()).getCredential());
-        data1.setHashPassword("hashed");
+        assertEquals("hashed" + data1.getRawPassword(), userDao.findByEmail(data1.getEmail()).getCredential());
 
-        userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential());
-        assertEquals("hashed2", userDao.findByEmail(data1.getEmail()).getCredential());
+        userManager.changePassword(data1.getEmail(), "hpw1", "xx");
+        assertEquals("hashedxx", userDao.findByEmail(data1.getEmail()).getCredential());
     }
 
     private static MutableUserAdapter getModificationData(String email, String firstName, String lastName, String password) {
