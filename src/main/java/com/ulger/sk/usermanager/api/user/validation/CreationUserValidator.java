@@ -8,19 +8,19 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreatingUserValidator implements UserValidator {
+public class CreationUserValidator implements UserValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(CreatingUserValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(CreationUserValidator.class);
 
     private EmailValidator emailValidator;
     private PasswordPolicyManager passwordPolicyManager;
     private I18NHelper i18NHelper;
 
-    public CreatingUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager) {
+    public CreationUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager) {
         this(emailValidator, passwordPolicyManager, new DefaultI18NHelper());
     }
 
-    public CreatingUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager, I18NHelper i18NHelper) {
+    public CreationUserValidator(EmailValidator emailValidator, PasswordPolicyManager passwordPolicyManager, I18NHelper i18NHelper) {
         this.emailValidator = emailValidator;
         this.passwordPolicyManager = passwordPolicyManager;
         this.i18NHelper = i18NHelper;
