@@ -7,6 +7,7 @@ public class MockUserModificationData implements UserModificationData {
     private String firstName;
     private String lastName;
     private String rawPassword;
+    private String hashPassword;
 
     @Override
     public String getUsername() {
@@ -38,6 +39,15 @@ public class MockUserModificationData implements UserModificationData {
     @Override
     public String getLastName() {
         return lastName;
+    }
+
+    @Override
+    public String getCredential() {
+        return hashPassword;
+    }
+
+    public void setHashPassword(String hashPassword) {
+        this.hashPassword = hashPassword;
     }
 
     public void setLastName(String lastName) {
