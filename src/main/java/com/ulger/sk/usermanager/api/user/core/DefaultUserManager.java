@@ -131,12 +131,9 @@ public class DefaultUserManager implements UserManager {
     public User updateUser(UserModificationData modificationData) {
         try {
             logger.info("[updateUser] User is updating :: data={}", modificationData);
-
-            // Validate
-            MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
             validate(modificationData, UserOperation.UPDATE);
 
-            User user = userDao.updateByUsername(mutableUserAdapter);
+            User user = userDao.update(modificationData);
             logger.info("[updateUser] User has been updated :: username={}", modificationData.getUsername());
 
             return user;

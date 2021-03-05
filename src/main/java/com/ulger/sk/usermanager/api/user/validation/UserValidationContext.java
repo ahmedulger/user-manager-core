@@ -21,7 +21,7 @@ public class UserValidationContext {
     private EmailValidator emailValidator;
     private Map<UserOperation, UserValidator> validationStrategies;
 
-    public UserValidationContext(PasswordPolicyManager passwordPolicyManager) {
+    public UserValidationContext() {
         this.emailValidator = EmailValidator.getInstance();
         this.validationStrategies = new HashMap<>();
 

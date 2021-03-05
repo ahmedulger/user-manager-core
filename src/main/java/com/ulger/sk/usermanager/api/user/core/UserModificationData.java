@@ -1,6 +1,6 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-public interface UserModificationData {
+public interface UserModificationData extends User {
 
     String getUsername();
 

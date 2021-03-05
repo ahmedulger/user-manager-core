@@ -105,7 +105,7 @@ public class UserDaoH2 implements UserDao {
     }
 
     @Override
-    public User updateByUsername(User user) throws DataAccessException {
+    public User update(User user) throws DataAccessException {
         String selectQuery = generateSqlQuery(
                 "SELECT * FROM user where username=%s",
                 user.getUsername());

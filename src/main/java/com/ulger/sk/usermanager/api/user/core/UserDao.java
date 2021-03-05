@@ -53,7 +53,7 @@ public interface UserDao {
      * @throws DataAccessException
      * @return updated instance
      */
-    User updateByUsername(User user) throws DataAccessException;
+    User update(User user) throws DataAccessException;
 
     /**
      * Updates password
