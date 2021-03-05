@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DefaultUserManagerTest {
+class DefaultUserManagerTest {
 
     final MutableUserAdapter data1 = getModificationData("email1@gmail.com", "fn1", "ln1", "hpw12345");
     final MutableUserAdapter data2 = getModificationData("email2@gmail.com", "fn2", "ln2", "hpw22345");
@@ -45,9 +45,6 @@ public class DefaultUserManagerTest {
     @Test
     void test_null_data() {
         assertThrows(UserOperationException.class, () -> userManager.createUser(null));
-        assertThrows(UserOperationException.class, () -> userManager.updateUser("", null));
-        assertThrows(UserOperationException.class, () -> userManager.updateUser(" ", null));
-        assertThrows(UserOperationException.class, () -> userManager.updateUser(null,null));
     }
 
     @Test
@@ -115,7 +112,7 @@ public class DefaultUserManagerTest {
         data1.setLastName("lastname");
         data1.setHashPassword("hashpassword");
 
-        User updatedUser = userManager.updateUser(user.getUsername(), data1);
+        User updatedUser = userManager.updateUser(data1);
 
         assertTrue(hasSameData(updatedUser, data1));
         assertTrue(hasSameData(updatedUser, userManager.getUserByEmail(data1.getEmail())));
@@ -129,7 +126,7 @@ public class DefaultUserManagerTest {
 
         data1.setUsername(null);
         data1.setEmail(null);
-        Exception exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        Exception exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1));
         assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
 
         exception = assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw12345", data1.getCredential()));
@@ -138,11 +135,11 @@ public class DefaultUserManagerTest {
         data1.setUsername(username);
         data1.setEmail(email);
         data1.setFirstName("Ahmet");
-        assertEquals("Ahmet", userManager.updateUser(data1.getUsername(), data1).getFirstName());
+        assertEquals("Ahmet", userManager.updateUser(data1).getFirstName());
 
         data1.setUsername("unknown");
         data1.setFirstName("Ahmet2");
-        exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1));
         assertEquals(DataAccessException.class, exception.getCause().getClass());
 
         exception = assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw12345", data1.getCredential()));
@@ -151,12 +148,12 @@ public class DefaultUserManagerTest {
         data1.setEmail(email);
         data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet3");
-        assertEquals("Ahmet3", userManager.updateUser(data1.getUsername(), data1).getFirstName());
+        assertEquals("Ahmet3", userManager.updateUser(data1).getFirstName());
 
         data1.setEmail("changing");
         data1.setUsername(user.getUsername());
         data1.setFirstName("Ahmet4");
-        assertThrows(UserOperationException.class, () -> userManager.updateUser(data1.getUsername(), data1));
+        assertThrows(UserOperationException.class, () -> userManager.updateUser(data1));
         assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential()));
     }
 
@@ -197,14 +194,14 @@ public class DefaultUserManagerTest {
         data3.setUsername(data2.getUsername());
         data3.setEmail(data1.getEmail());
 
-        UserOperationException exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data3.getUsername(), data3));
+        UserOperationException exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data3));
         assertTrue(exception.getCause() instanceof DataAccessException);
         assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
 
         data4.setUsername(data2.getUsername());
         data4.setEmail(data1.getEmail());
 
-        UserOperationException exception2 = assertThrows(UserOperationException.class, () -> userManager.updateUser(data4.getUsername(), data4));
+        UserOperationException exception2 = assertThrows(UserOperationException.class, () -> userManager.updateUser(data4));
         assertTrue(exception.getCause() instanceof DataAccessException);
         assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
 
@@ -213,7 +210,7 @@ public class DefaultUserManagerTest {
         data5.setLastName(data1.getLastName());
         data5.setHashPassword(data1.getHashPassword());
 
-        User updatedUser5 = userManager.updateUser(data5.getUsername(), data5);
+        User updatedUser5 = userManager.updateUser(data5);
         assertEquals(2, userDao.find().size());
         assertEquals(updatedUser5.getUsername(), data2.getUsername());
         assertEquals(updatedUser5.getDisplayName(), data1.getFirstName() + " " + data1.getLastName());

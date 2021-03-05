@@ -128,17 +128,16 @@ public class DefaultUserManager implements UserManager {
     }
 
     @Override
-    public User updateUser(String username, UserModificationData modificationData) {
+    public User updateUser(UserModificationData modificationData) {
         try {
-            logger.info("[updateUser] User is updating :: username={}, data={}", username, modificationData);
-            notBlank(UserField.USERNAME.getName(), username);
+            logger.info("[updateUser] User is updating :: data={}", modificationData);
 
             // Validate
             MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
             validate(modificationData, UserOperation.UPDATE);
 
-            User user = userDao.updateByUsername(username, mutableUserAdapter);
-            logger.info("[updateUser] User has been updated :: username={}", username);
+            User user = userDao.updateByUsername(mutableUserAdapter);
+            logger.info("[updateUser] User has been updated :: username={}", modificationData.getUsername());
 
             return user;
         } catch (Exception e) {

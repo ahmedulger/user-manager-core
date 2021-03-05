@@ -48,7 +48,7 @@ public class SimpleCachingUserManagerTest {
         assertTrue(user1 == cachingUserManager.getUserByEmail(user1.getEmail()));
 
         when(passwordEncoder.encode(anyString())).thenReturn(null);
-        User updatedUser = cachingUserManager.updateUser(data1.getUsername(), data1);
+        User updatedUser = cachingUserManager.updateUser(data1);
         assertFalse(user1 == updatedUser);
         assertFalse(updatedUser == defaultUserManager.getUserByEmail(user1.getEmail()));
         assertTrue(updatedUser == cachingUserManager.getUserByEmail(user1.getEmail()));

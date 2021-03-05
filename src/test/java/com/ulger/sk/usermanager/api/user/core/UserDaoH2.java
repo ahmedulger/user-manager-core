@@ -105,17 +105,17 @@ public class UserDaoH2 implements UserDao {
     }
 
     @Override
-    public User updateByUsername(String username, User user) throws DataAccessException {
+    public User updateByUsername(User user) throws DataAccessException {
         String selectQuery = generateSqlQuery(
                 "SELECT * FROM user where username=%s",
-                username);
+                user.getUsername());
 
         String updateQuery = generateSqlQuery(
                 "UPDATE user SET email = %s, first_name = %s, last_name = %s WHERE username=%s",
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                username);
+                user.getUsername());
 
         try (Statement stmt = createStatement()) {
             stmt.execute(updateQuery);

@@ -49,12 +49,11 @@ public interface UserDao {
     /**
      * Updates user information expect password
      *
-     * @param username
      * @param user
      * @throws DataAccessException
      * @return updated instance
      */
-    User updateByUsername(String username, User user) throws DataAccessException;
+    User updateByUsername(User user) throws DataAccessException;
 
     /**
      * Updates password

@@ -38,11 +38,10 @@ public interface UserManager {
      * This method uses id or email parameter to retrieve user from data source. If id or email both null than
      * throws {@link IllegalArgumentException}. Email value can not be updatable when once created.
      *
-     * @param username is id of user
      * @param userModificationData contains user information to be saved.
      * @throws UserOperationException when any exception occurred
      */
-    User updateUser(String username, UserModificationData userModificationData) throws UserOperationException;
+    User updateUser(UserModificationData userModificationData) throws UserOperationException;
 
     /**
      * Changes users password

@@ -153,8 +153,8 @@ public abstract class AbstractCachingUserManager implements UserManager {
      * @return
      */
     @Override
-    public User updateUser(String username, UserModificationData modificationData) {
-        User user = userManager.updateUser(username, modificationData);
+    public User updateUser(UserModificationData modificationData) {
+        User user = userManager.updateUser(modificationData);
 
         if (user != null) {
             addUserToCache(user);
