@@ -11,18 +11,18 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-public class SimpleUserCacheTest {
+class SimpleUserCacheTest {
 
     private SimpleUserCache cache;
 
-    private User user1 = DefaultUser.newInstance("1", "1@gmail.com", "fn1", "ln1", "cr1");
-    private User user2 = DefaultUser.newInstance("2", "2@gmail.com", "fn2", "ln2", "cr2");
-    private User user3 = DefaultUser.newInstance("3", "3@gmail.com", "fn3", "ln3", "cr3");
-    private User user4 = DefaultUser.newInstance("4", "4@gmail.com", "fn4", "ln4", "cr4");
-    private User user1Copy = DefaultUser.newInstance("1", "1@gmail.com", "fn1User1Copy", "ln1User1Copy", "cr1");
-    private User user2Copy = DefaultUser.newInstance("2", "2@gmail.com", "fn2User2Copy", "ln2User2Copy", "cr2");
-    private User user3Copy = DefaultUser.newInstance("3", "3@gmail.com", "fn3User3Copy", "ln3User3Copy", "cr3");
-    private User user4Copy = DefaultUser.newInstance("4", "4@gmail.com", "fn4User4Copy", "ln4User4Copy", "cr4");
+    private User user1 = newInstance("1", "1@gmail.com", "fn1", "ln1", "cr1");
+    private User user2 = newInstance("2", "2@gmail.com", "fn2", "ln2", "cr2");
+    private User user3 = newInstance("3", "3@gmail.com", "fn3", "ln3", "cr3");
+    private User user4 = newInstance("4", "4@gmail.com", "fn4", "ln4", "cr4");
+    private User user1Copy = newInstance("1", "1@gmail.com", "fn1User1Copy", "ln1User1Copy", "cr1");
+    private User user2Copy = newInstance("2", "2@gmail.com", "fn2User2Copy", "ln2User2Copy", "cr2");
+    private User user3Copy = newInstance("3", "3@gmail.com", "fn3User3Copy", "ln3User3Copy", "cr3");
+    private User user4Copy = newInstance("4", "4@gmail.com", "fn4User4Copy", "ln4User4Copy", "cr4");
 
     @BeforeEach
     void setUp() {
@@ -117,5 +117,15 @@ public class SimpleUserCacheTest {
         user1 = null;
         assertThrows(IllegalArgumentException.class, () -> cache.add(user1));
         assertNull(cache.get(user2.getEmail()));
+    }
+
+    static User newInstance(String username, String email, String firstName, String lastName, String credential) {
+        return DefaultUser.Builder.anUserImp()
+                .withUsername(username)
+                .withEmail(email)
+                .withFirstName(firstName)
+                .withLastName(lastName)
+                .withCredential(credential)
+                .build();
     }
 }
