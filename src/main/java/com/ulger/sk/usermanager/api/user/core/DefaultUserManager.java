@@ -5,8 +5,6 @@ import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
 import com.ulger.sk.usermanager.exception.IllegalParameterException;
-import com.ulger.sk.usermanager.localization.DefaultI18NHelper;
-import com.ulger.sk.usermanager.localization.I18NHelper;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -27,7 +25,6 @@ public class DefaultUserManager implements UserManager {
     private UserValidationContext userValidationContext;
     private PasswordEncoder passwordEncoder;
     private UserDao userDao;
-    private I18NHelper i18NHelper;
 
     /**
      * Constructs instance with UserDao.
@@ -41,26 +38,10 @@ public class DefaultUserManager implements UserManager {
         init();
     }
 
-    /**
-     * Constructs instance with UserDao.
-     * If no event listener given than any events will be published after user modification
-     * @param userDao
-     */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, UserValidationContext userValidationContext, UserDao userDao, I18NHelper i18nHelper) {
-        this(passwordEncoder, userValidationContext, userDao);
-        this.i18NHelper = i18nHelper;
-        init();
-    }
-
     private final void init() {
         if (passwordEncoder == null) {
             logger.error("[init] No password encoder found, PasswordEncoder is required");
             throw new IllegalArgumentException("No password encoder found, PasswordEncoder is required");
-        }
-
-        if (this.i18NHelper == null) {
-            logger.warn("[init] I18NHelper implementation not found, initializing with DefaultI18NHelper");
-            this.i18NHelper = new DefaultI18NHelper();
         }
     }
 
@@ -158,11 +139,11 @@ public class DefaultUserManager implements UserManager {
 
             User user = userDao.findByEmail(email);
             if (user == null) {
-                throw new UserNotFoundException(i18NHelper.getMessage("operation.user.not.found.email", email));
+                throw new UserNotFoundException("User not found with email: " + email);
             }
 
             if (!passwordEncoder.matches(oldPassword, user.getCredential())) {
-                throw new IllegalParameterException(UserField.PASSWORD.getName(), i18NHelper.getMessage("operation.password.change.same"));
+                throw new IllegalParameterException(UserField.PASSWORD.getName(), "Password must be different with older");
             }
 
             // Update user's raw password to the hashed password

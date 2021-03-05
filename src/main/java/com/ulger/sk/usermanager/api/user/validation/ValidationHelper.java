@@ -4,7 +4,6 @@ import com.ulger.sk.usermanager.api.user.core.UserField;
 import com.ulger.sk.usermanager.api.user.core.UserModificationData;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordCheckingResult;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
-import com.ulger.sk.usermanager.localization.I18NHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
@@ -18,21 +17,17 @@ class ValidationHelper {
 
     protected EmailValidator emailValidator;
     protected PasswordPolicyManager passwordPolicyManager;
-    protected I18NHelper i18NHelper;
-
     protected UserModificationData modificationData;
     protected UserValidationResult validationResult;
 
     ValidationHelper(
             EmailValidator emailValidator,
             PasswordPolicyManager passwordPolicyManager,
-            I18NHelper i18NHelper,
             UserModificationData modificationData) {
 
         notNull(modificationData);
         this.emailValidator = emailValidator;
         this.passwordPolicyManager = passwordPolicyManager;
-        this.i18NHelper = i18NHelper;
         this.modificationData = modificationData;
         this.validationResult = new UserValidationResult();
     }
@@ -53,7 +48,7 @@ class ValidationHelper {
         String username = modificationData.getUsername();
 
         if (StringUtils.isBlank(username)) {
-            addError(UserField.USERNAME, i18NHelper.getMessage("validation.username.blank"));
+            addError(UserField.USERNAME, "Username must not blank");
             return false;
         }
 
@@ -62,12 +57,12 @@ class ValidationHelper {
 
     boolean validateEmailAddress() {
         if (StringUtils.isEmpty(modificationData.getEmail())) {
-            addError(UserField.EMAIL, i18NHelper.getMessage("validation.email.blank"));
+            addError(UserField.EMAIL, "Email must not blank");
             return false;
         }
 
         if (!emailValidator.isValid(modificationData.getEmail())) {
-            addError(UserField.EMAIL, i18NHelper.getMessage("validation.email.invalid", modificationData.getEmail()));
+            addError(UserField.EMAIL, "Invalid email address");
             return false;
         }
 
@@ -81,7 +76,7 @@ class ValidationHelper {
 
     boolean validatePassword() {
         if (StringUtils.isEmpty(modificationData.getRawPassword())) {
-            addError(UserField.PASSWORD, i18NHelper.getMessage("validation.password.blank"));
+            addError(UserField.PASSWORD, "Passwor must not blank");
             return false;
         }
 
@@ -92,7 +87,7 @@ class ValidationHelper {
         String password = modificationData.getRawPassword();
         PasswordCheckingResult passwordCheckingResult = passwordPolicyManager.checkPolicy(password);
         if (passwordCheckingResult.hasError()) {
-            addError(UserField.PASSWORD, i18NHelper.getMessage("validation.password.invalid"));
+            addError(UserField.PASSWORD, "Invalid password");
             return false;
         }
 
@@ -104,12 +99,12 @@ class ValidationHelper {
         String lastName = modificationData.getLastName();
 
         if (StringUtils.isBlank(firstName)) {
-            addError(UserField.FIRST_NAME, i18NHelper.getMessage("validation.firstname.blank"));
+            addError(UserField.FIRST_NAME, "First name must not blank");
             return false;
         }
 
         if (StringUtils.isBlank(lastName)) {
-            addError(UserField.LAST_NAME, i18NHelper.getMessage("validation.lastname.blank"));
+            addError(UserField.LAST_NAME, "Last name must not blank");
             return false;
         }
 
