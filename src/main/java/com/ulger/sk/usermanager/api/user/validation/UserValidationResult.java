@@ -22,7 +22,7 @@ public class UserValidationResult {
     }
 
     public boolean isValid() {
-        return errorBag != null && errorBag.hasAnyErrors();
+        return errorBag == null || !errorBag.hasAnyErrors();
     }
 
     @Override

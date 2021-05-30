@@ -8,20 +8,24 @@ import com.ulger.sk.usermanager.api.user.validation.ValidationException;
 import com.ulger.sk.usermanager.apiresult.ErrorBag;
 import com.ulger.sk.usermanager.apiresult.SimpleErrorBag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@RunWith(JUnitPlatform.class)
 class DefaultUserManagerTest {
 
     @Mock
@@ -45,7 +49,7 @@ class DefaultUserManagerTest {
     @Test
     void test_get_user_by_email_null_data() {
         Mockito
-                .when(userDao.findByEmail(anyString()))
+                .when(userDao.findByEmail(any()))
                 .thenReturn(null);
 
         assert null == userManager.getUserByEmail("emailX");
@@ -57,7 +61,7 @@ class DefaultUserManagerTest {
         userTobeReturned.setEmail("emailX");
 
         Mockito
-                .when(userDao.findByEmail(anyString()))
+                .when(userDao.findByEmail(any()))
                 .thenReturn(Optional.of(userTobeReturned));
 
         assert userManager
@@ -80,7 +84,7 @@ class DefaultUserManagerTest {
         
         assert userManager.getAllUsers().size() == 2;
         assert userManager.getAllUsers().get(0).getEmail().equals("email1X");
-        assert userManager.getAllUsers().get(1).getEmail().equals("email1X");
+        assert userManager.getAllUsers().get(1).getEmail().equals("email2X");
     }
 
     @Test
@@ -104,7 +108,7 @@ class DefaultUserManagerTest {
         UserValidationResult validationResult = new UserValidationResult(errorBag);
 
         Mockito
-                .when(mockValidator.validate(anyObject()))
+                .when(mockValidator.validate(any()))
                 .thenReturn(validationResult);
 
         Mockito
@@ -124,7 +128,7 @@ class DefaultUserManagerTest {
         userTobeReturned.setEmail("emailX");
 
         Mockito
-                .when(userDao.create(anyObject()))
+                .when(userDao.create(any()))
                 .thenReturn(userTobeReturned);
 
         assert userManager
@@ -154,7 +158,7 @@ class DefaultUserManagerTest {
         UserValidationResult validationResult = new UserValidationResult(errorBag);
 
         Mockito
-                .when(mockValidator.validate(anyObject()))
+                .when(mockValidator.validate(any()))
                 .thenReturn(validationResult);
 
         Mockito
@@ -174,7 +178,7 @@ class DefaultUserManagerTest {
         userTobeReturned.setEmail("emailX");
 
         Mockito
-                .when(userDao.update(anyObject()))
+                .when(userDao.update(any()))
                 .thenReturn(userTobeReturned);
 
         assert userManager
@@ -211,7 +215,7 @@ class DefaultUserManagerTest {
         UserValidationResult validationResult = new UserValidationResult(errorBag);
 
         Mockito
-                .when(mockValidator.validate(anyObject()))
+                .when(mockValidator.validate(any()))
                 .thenReturn(validationResult);
 
         Mockito
@@ -231,7 +235,7 @@ class DefaultUserManagerTest {
         UserValidationResult validationResult = new UserValidationResult();
 
         Mockito
-                .when(mockValidator.validate(anyObject()))
+                .when(mockValidator.validate(any()))
                 .thenReturn(validationResult);
 
         Mockito
@@ -257,7 +261,7 @@ class DefaultUserManagerTest {
         UserValidator mockValidator = Mockito.mock(UserValidator.class);
 
         Mockito
-                .when(mockValidator.validate(anyObject()))
+                .when(mockValidator.validate(any()))
                 .thenReturn(validationResult);
 
         Mockito
@@ -285,7 +289,7 @@ class DefaultUserManagerTest {
         UserValidator mockValidator = Mockito.mock(UserValidator.class);
 
         Mockito
-                .when(mockValidator.validate(anyObject()))
+                .when(mockValidator.validate(any()))
                 .thenReturn(validationResult);
 
         Mockito
@@ -297,7 +301,7 @@ class DefaultUserManagerTest {
                 .thenReturn(Optional.of(userTobeReturned));
 
         Mockito
-                .when(passwordEncoder.encode(anyString()))
+                .when(passwordEncoder.encode(any()))
                 .thenReturn("encodedX");
 
         Mockito
