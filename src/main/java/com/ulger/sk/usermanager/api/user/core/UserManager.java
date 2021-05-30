@@ -29,9 +29,8 @@ public interface UserManager {
      *
      * @param userModificationData contains user information to be saved.
      * @return Created {@link User} data
-     * @throws UserOperationException when any exception occurred
      * */
-    User createUser(UserModificationData userModificationData) throws UserOperationException;
+    User createUser(UserModificationData userModificationData);
 
     /**
      * Returns a {@link User} object updated by using modification data that is given as parameter
@@ -39,9 +38,8 @@ public interface UserManager {
      * throws {@link IllegalArgumentException}. Email value can not be updatable when once created.
      *
      * @param userModificationData contains user information to be saved.
-     * @throws UserOperationException when any exception occurred
      */
-    User updateUser(UserModificationData userModificationData) throws UserOperationException;
+    User updateUser(UserModificationData userModificationData);
 
     /**
      * Changes users password
@@ -50,7 +48,6 @@ public interface UserManager {
      * @param oldPassword
      * @throws IllegalArgumentException if when given data is null
      * @throws ValidationException if given data is not valid
-     * @throws UserOperationException when any unexpected exception occurred
      */
-    void changePassword(String email, String oldPassword, String newPassword) throws UserOperationException;
+    void changePassword(String email, String oldPassword, String newPassword);
 }
