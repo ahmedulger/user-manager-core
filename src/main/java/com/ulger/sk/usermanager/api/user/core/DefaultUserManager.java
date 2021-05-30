@@ -87,7 +87,7 @@ public class DefaultUserManager implements UserManager {
         validate(modificationData, UserOperation.UPDATE);
 
         User user = userDao.update(modificationData);
-        logger.info("[updateUser] User has been updated :: username={}", modificationData.getUsername());
+        logger.info("[updateUser] User has been updated :: username={}", user.getUsername());
 
         return user;
     }

@@ -50,7 +50,7 @@ class DefaultUserManagerTest {
     void test_get_user_by_email_null_data() {
         Mockito
                 .when(userDao.findByEmail(any()))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
 
         assert null == userManager.getUserByEmail("emailX");
     }
@@ -127,18 +127,29 @@ class DefaultUserManagerTest {
         MockUser userTobeReturned = new MockUser();
         userTobeReturned.setEmail("emailX");
 
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
+
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CREATE))
+                .thenReturn(mockValidator);
+
+        Mockito
+                .when(mockValidator.validate(any()))
+                .thenReturn(new UserValidationResult());
+
         Mockito
                 .when(userDao.create(any()))
                 .thenReturn(userTobeReturned);
 
         assert userManager
-                .createUser(null)
+                .createUser(new MockUserModificationData())
                 .getEmail()
                 .equals("emailX");
     }
 
     @Test
     void test_update_user_null_validator_picker() {
+
         Mockito
                 .when(userValidatorPicker.pick(UserOperation.UPDATE))
                 .thenReturn(null);
@@ -176,6 +187,16 @@ class DefaultUserManagerTest {
     void test_update_user_successfully() {
         MockUser userTobeReturned = new MockUser();
         userTobeReturned.setEmail("emailX");
+
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
+
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.UPDATE))
+                .thenReturn(mockValidator);
+
+        Mockito
+                .when(mockValidator.validate(any()))
+                .thenReturn(new UserValidationResult());
 
         Mockito
                 .when(userDao.update(any()))
@@ -269,6 +290,10 @@ class DefaultUserManagerTest {
                 .thenReturn(mockValidator);
 
         Mockito
+                .when(passwordEncoder.matches(any(), any()))
+                .thenReturn(true);
+
+        Mockito
                 .when(userDao.findByEmail(eq(("emailX"))))
                 .thenReturn(Optional.of(userTobeReturned));
 
@@ -304,8 +329,13 @@ class DefaultUserManagerTest {
                 .when(passwordEncoder.encode(any()))
                 .thenReturn("encodedX");
 
+        userManager.changePassword("emailX", "", "");
+
         Mockito
                 .verify(userDao, times(1))
-                .updatePasswordByUsername(eq("usernameX"), "encodedX");
+                .updatePasswordByUsername(
+                        eq("usernameX"),
+                        eq("encodedX")
+                );
     }
 }
