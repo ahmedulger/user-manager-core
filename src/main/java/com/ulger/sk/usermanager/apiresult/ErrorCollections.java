@@ -5,14 +5,14 @@ public class ErrorCollections {
     private ErrorCollections() {
     }
 
-    public static ErrorCollection of(String message) {
-        ErrorCollection errorCollection = new SimpleErrorCollection();
-        errorCollection.addErrorMessage(message);
+    public static ErrorBag of(String message) {
+        ErrorBag errorBag = new SimpleErrorBag();
+        errorBag.addErrorMessage(message);
 
-        return errorCollection;
+        return errorBag;
     }
 
-    public static String toString(ErrorCollection errorCollection) {
-        return errorCollection.getErrors().values().toString();
+    public static String toString(ErrorBag errorBag) {
+        return errorBag.getErrors().values().toString();
     }
 }

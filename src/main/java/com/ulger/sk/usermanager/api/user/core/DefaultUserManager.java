@@ -1,19 +1,17 @@
 package com.ulger.sk.usermanager.api.user.core;
 
 import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
-import com.ulger.sk.usermanager.api.user.validation.UserValidationContext;
 import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
+import com.ulger.sk.usermanager.api.user.validation.UserValidatorPicker;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
-import com.ulger.sk.usermanager.exception.IllegalParameterException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
-
-import static com.ulger.sk.usermanager.SkAssertions.notBlank;
+import java.util.Optional;
 
 /**
  * Simple implementation of {@link UserManager}
@@ -22,27 +20,14 @@ public class DefaultUserManager implements UserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUserManager.class);
 
-    private UserValidationContext userValidationContext;
+    private UserValidatorPicker userValidatorPicker;
     private PasswordEncoder passwordEncoder;
     private UserDao userDao;
 
-    /**
-     * Constructs instance with UserDao.
-     * If no event listener given than any events will be published after user modification
-     * @param userDao
-     */
-    public DefaultUserManager(PasswordEncoder passwordEncoder, UserValidationContext userValidationContext, UserDao userDao) {
-        this.userValidationContext = userValidationContext;
+    public DefaultUserManager(UserValidatorPicker userValidatorPicker, PasswordEncoder passwordEncoder, UserDao userDao) {
+        this.userValidatorPicker = userValidatorPicker;
         this.passwordEncoder = passwordEncoder;
         this.userDao = userDao;
-        init();
-    }
-
-    private final void init() {
-        if (passwordEncoder == null) {
-            logger.error("[init] No password encoder found, PasswordEncoder is required");
-            throw new IllegalArgumentException("No password encoder found, PasswordEncoder is required");
-        }
     }
 
     /**
@@ -56,12 +41,14 @@ public class DefaultUserManager implements UserManager {
             logger.debug("[getUserByEmail] Getting user with email :: email={}", email);
         }
 
-        notBlank(UserField.EMAIL.getName(), email);
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("Email must given");
+        }
 
-        User user = userDao.findByEmail(email);
+        Optional<User> user = userDao.findByEmail(email);
 
-        if (user != null) {
-            return user;
+        if (user.isPresent()) {
+            return user.get();
         }
 
         if (logger.isDebugEnabled()) {
@@ -76,112 +63,80 @@ public class DefaultUserManager implements UserManager {
      */
     @Override
     public List<User> getAllUsers() {
-        List<User> allUsers = userDao.find();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("[getAllUsers] found user count :: count={}", allUsers.size());
-        }
-
-        return allUsers;
+        return userDao.find();
     }
 
     @Override
     public User createUser(UserModificationData modificationData) {
-        try {
-            logger.info("[createUser] User is creating :: data={}", modificationData);
+        // Validate
+        validate(modificationData, UserOperation.CREATE);
 
-            // Validate
-            MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
-            validate(mutableUserAdapter, UserOperation.CREATE);
+        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter(modificationData);
 
-            // Update user's raw password to the hashed password
-            encryptPassword(mutableUserAdapter);
+        // Update user's raw password to the hashed password
+        mutableUserAdapter.setHashPassword(encryptRawPassword(mutableUserAdapter.getRawPassword()));
 
-            User user = userDao.create(mutableUserAdapter);
-            logger.info("[createUser] User has been created");
+        User user = userDao.create(mutableUserAdapter);
+        logger.info("[createUser] User has been created :: username={}", user.getUsername());
 
-            return user;
-
-        } catch (Exception e) {
-            logger.error("Unable to create user", e);
-            throw new UserOperationException("Unable to create user", e);
-        }
+        return user;
     }
 
     @Override
     public User updateUser(UserModificationData modificationData) {
-        try {
-            logger.info("[updateUser] User is updating :: data={}", modificationData);
-            validate(modificationData, UserOperation.UPDATE);
+        validate(modificationData, UserOperation.UPDATE);
 
-            User user = userDao.update(modificationData);
-            logger.info("[updateUser] User has been updated :: username={}", modificationData.getUsername());
+        User user = userDao.update(modificationData);
+        logger.info("[updateUser] User has been updated :: username={}", modificationData.getUsername());
 
-            return user;
-        } catch (Exception e) {
-            logger.error("Unable to update user", e);
-            throw new UserOperationException("Unable to update user", e);
-        }
+        return user;
     }
 
     @Override
     public void changePassword(String email, String oldPassword, String newPassword) {
-        try {
-            logger.info("[changePassword] User's password is updating :: email={}", email);
+        logger.info("[changePassword] User's password is updating :: email={}", email);
 
-            if (Objects.isNull(email)) {
-                throw new IllegalParameterException(UserField.EMAIL.getName(), "email should be given");
-            }
-
-            MutableUserAdapter mutableUserAdapter = new MutableUserAdapter();
-            mutableUserAdapter.setRawPassword(newPassword);
-            validate(mutableUserAdapter, UserOperation.CHANGE_PASSWORD);
-
-            User user = userDao.findByEmail(email);
-            if (user == null) {
-                throw new UserNotFoundException("User not found with email: " + email);
-            }
-
-            if (!passwordEncoder.matches(oldPassword, user.getCredential())) {
-                throw new IllegalParameterException(UserField.PASSWORD.getName(), "Password must be different with older");
-            }
-
-            // Update user's raw password to the hashed password
-            encryptPassword(mutableUserAdapter);
-
-            userDao.updatePasswordByUsername(user.getUsername(), mutableUserAdapter.getHashPassword());
-
-            logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
-
-        } catch (Exception e) {
-            logger.error("Unable to change password", e);
-            throw new UserOperationException("Unable to change password", e);
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("Email should be given");
         }
-    }
 
-    private void encryptPassword(MutableUserAdapter mutableUserAdapter) {
-        logger.info("[encryptPassword] encrypting user password");
-        mutableUserAdapter.setHashPassword(encryptRawPassword(mutableUserAdapter.getRawPassword()));
+        MutableUserAdapter mutableUserAdapter = new MutableUserAdapter();
+        mutableUserAdapter.setRawPassword(newPassword);
+        validate(mutableUserAdapter, UserOperation.CHANGE_PASSWORD);
+
+        User user = userDao
+                .findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+
+        if (passwordEncoder.matches(oldPassword, user.getCredential())) {
+            throw new IllegalArgumentException("Password must be different with older");
+        }
+
+        // Update user's raw password to the hashed password
+        mutableUserAdapter.setHashPassword(encryptRawPassword(newPassword));
+
+        userDao.updatePasswordByUsername(user.getUsername(), mutableUserAdapter.getHashPassword());
+
+        logger.info("[changePassword] User's password has been changed successfully :: email={}", user.getEmail());
     }
 
     private String encryptRawPassword(String rawPassword) {
-        notBlank(UserField.PASSWORD.getName(), rawPassword);
         return passwordEncoder.encode(rawPassword);
     }
 
     private void validate(UserModificationData userModificationData, UserOperation operation) {
-        UserValidationResult validationResult = userValidationContext.validate(userModificationData, operation);
+        UserValidationResult validationResult = userValidatorPicker.pick(operation).validate(userModificationData);
 
         if (!validationResult.isValid()) {
             logger.info("[validate] User is not valid :: validationResult={}", validationResult);
-            throw new ValidationException(validationResult.getErrorCollection());
+            throw new ValidationException(validationResult.getErrorBag());
         }
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                .append("userValidationContext", userValidationContext)
+                .append("userValidatorPicker", userValidatorPicker)
                 .append("passwordEncoder", passwordEncoder)
                 .append("userDao", userDao)
                 .toString();

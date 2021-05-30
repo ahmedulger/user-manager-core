@@ -1,40 +1,40 @@
 package com.ulger.sk.usermanager.api.user.core;
 
-import com.ulger.sk.usermanager.api.user.core.password.DefaultPasswordPolicyManager;
-import com.ulger.sk.usermanager.api.user.core.password.MockPasswordEncoder;
 import com.ulger.sk.usermanager.api.user.core.password.PasswordEncoder;
-import com.ulger.sk.usermanager.api.user.core.password.PasswordPolicyManager;
+import com.ulger.sk.usermanager.api.user.validation.UserValidationResult;
+import com.ulger.sk.usermanager.api.user.validation.UserValidator;
+import com.ulger.sk.usermanager.api.user.validation.UserValidatorPicker;
 import com.ulger.sk.usermanager.api.user.validation.ValidationException;
-import com.ulger.sk.usermanager.exception.DataAccessException;
-import com.ulger.sk.usermanager.exception.IllegalParameterException;
-import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
-import org.junit.jupiter.api.BeforeEach;
+import com.ulger.sk.usermanager.apiresult.ErrorBag;
+import com.ulger.sk.usermanager.apiresult.SimpleErrorBag;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.times;
 
+@RunWith(MockitoJUnitRunner.class)
 class DefaultUserManagerTest {
 
-    final MutableUserAdapter data1 = getModificationData("email1@gmail.com", "fn1", "ln1", "hpw12345");
-    final MutableUserAdapter data2 = getModificationData("email2@gmail.com", "fn2", "ln2", "hpw22345");
-    final MutableUserAdapter data3 = getModificationData("email3@gmail.com", "fn3", "ln3", "hpw32345");
-    final MutableUserAdapter data4 = getModificationData("email4@gmail.com", "fn4", "ln4", "hpw42345");
-    final MutableUserAdapter data5 = getModificationData("email5@gmail.com", "fn5", "ln5", "hpw52345");
+    @Mock
+    private UserValidatorPicker userValidatorPicker;
 
-    private UserDao userDao;
+    @Mock
     private PasswordEncoder passwordEncoder;
-    private PasswordPolicyManager passwordPolicyManager;
-    private UserManager userManager;
 
-    @BeforeEach
-    void setUp() {
-        this.userDao = new UserDaoH2();
-        this.passwordEncoder = new MockPasswordEncoder("hashed");
-        this.passwordPolicyManager = new DefaultPasswordPolicyManager();
-        this.userManager = new DefaultUserManager(passwordEncoder, UserValidationContextInitializer.getDefault(passwordPolicyManager), userDao);
-    }
+    @Mock
+    private UserDao userDao;
+
+    @InjectMocks
+    private DefaultUserManager userManager;
 
     @Test
     void test_get_user_by_email_blank_input() {
@@ -43,223 +43,265 @@ class DefaultUserManagerTest {
     }
 
     @Test
-    void test_null_data() {
-        assertThrows(UserOperationException.class, () -> userManager.createUser(null));
+    void test_get_user_by_email_null_data() {
+        Mockito
+                .when(userDao.findByEmail(anyString()))
+                .thenReturn(null);
+
+        assert null == userManager.getUserByEmail("emailX");
     }
 
     @Test
-    void test_create_blank_data_fields() {
-        data1.setEmail(" ");
-        data2.setFirstName(" ");
-        data3.setLastName(" ");
-        data4.setRawPassword(" ");
+    void test_get_user_by_email_successfully() {
+        MockUser userTobeReturned = new MockUser();
+        userTobeReturned.setEmail("emailX");
 
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+        Mockito
+                .when(userDao.findByEmail(anyString()))
+                .thenReturn(Optional.of(userTobeReturned));
+
+        assert userManager
+                .getUserByEmail("emailX")
+                .getEmail()
+                .equals("emailX");
     }
 
     @Test
-    void test_create_null_data_fields() {
-        data1.setEmail(null);
-        data2.setFirstName(null);
-        data3.setLastName(null);
-        data4.setRawPassword(null);
-
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
-        assert ValidationException.class == assertThrows(UserOperationException.class, () -> userManager.createUser(data1)).getCause().getClass();
+    void test_find_all_user() {
+        MockUser userTobeReturned1 = new MockUser();
+        userTobeReturned1.setEmail("email1X");
+        
+        MockUser userTobeReturned2 = new MockUser();
+        userTobeReturned2.setEmail("email2X");
+        
+        Mockito
+                .when(userDao.find())
+                .thenReturn(Arrays.asList(userTobeReturned1, userTobeReturned2));
+        
+        assert userManager.getAllUsers().size() == 2;
+        assert userManager.getAllUsers().get(0).getEmail().equals("email1X");
+        assert userManager.getAllUsers().get(1).getEmail().equals("email1X");
     }
 
     @Test
-    void test_create_none_existing_user() {
-        User user1 = userManager.createUser(data1);
-        User user2 = userManager.createUser(data2);
-        User user3 = userManager.createUser(data3);
-        User user4 = userManager.createUser(data4);
+    void test_create_user_null_validator_picker() {
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CREATE))
+                .thenReturn(null);
 
-        assertEquals(4, userDao.find().size());
-
-        assertTrue(hasSameData(user1, data1));
-        assertTrue(hasSameData(user2, data2));
-        assertTrue(hasSameData(user3, data3));
-        assertTrue(hasSameData(user4, data4));
-
-        assertTrue(hasSameData(userManager.getUserByEmail(user1.getEmail()), data1));
-        assertTrue(hasSameData(userManager.getUserByEmail(user2.getEmail()), data2));
-        assertTrue(hasSameData(userManager.getUserByEmail(user3.getEmail()), data3));
-        assertTrue(hasSameData(userManager.getUserByEmail(user4.getEmail()), data4));
-
-        assertFalse(user1 == userManager.getUserByEmail(user1.getEmail()));
-        assertFalse(user2 == userManager.getUserByEmail(user2.getEmail()));
-        assertFalse(user3 == userManager.getUserByEmail(user3.getEmail()));
-        assertFalse(user4 == userManager.getUserByEmail(user4.getEmail()));
+        assertThrows(
+                NullPointerException.class,
+                () -> userManager.createUser(null));
     }
 
     @Test
-    void test_update_existing_user_none_unique_fields() {
-        User user = userManager.createUser(data1);
+    void test_create_user_invalid_data() {
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
 
-        assertNotNull(user.getUsername());
-        assertTrue(hasSameData(user, data1));
-        assertTrue(hasSameData(userManager.getUserByEmail(data1.getEmail()), data1));
+        ErrorBag errorBag = new SimpleErrorBag();
+        errorBag.addErrorMessage("errorMessage1X");
 
-        data1.setUsername(user.getUsername());
-        data1.setEmail("email@gmail.com");
-        data1.setFirstName("firstname");
-        data1.setLastName("lastname");
-        data1.setHashPassword("hashpassword");
+        UserValidationResult validationResult = new UserValidationResult(errorBag);
 
-        User updatedUser = userManager.updateUser(data1);
+        Mockito
+                .when(mockValidator.validate(anyObject()))
+                .thenReturn(validationResult);
 
-        assertTrue(hasSameData(updatedUser, data1));
-        assertTrue(hasSameData(updatedUser, userManager.getUserByEmail(data1.getEmail())));
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CREATE))
+                .thenReturn(mockValidator);
+
+        ValidationException validationException = assertThrows(
+                ValidationException.class,
+                () -> userManager.createUser(null));
+
+        assert validationException.getErrorBag().getErrorMessages().size() == 1;
     }
 
     @Test
-    void test_update_illegal_attempting() {
-        String username = data1.getUsername();
-        String email = data1.getEmail();
-        User user = userManager.createUser(data1);
+    void test_create_user_successfully() {
+        MockUser userTobeReturned = new MockUser();
+        userTobeReturned.setEmail("emailX");
 
-        data1.setUsername(null);
-        data1.setEmail(null);
-        Exception exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1));
-        assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
+        Mockito
+                .when(userDao.create(anyObject()))
+                .thenReturn(userTobeReturned);
 
-        exception = assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw12345", data1.getCredential()));
-        assertEquals(IllegalParameterException.class, exception.getCause().getClass());
-
-        data1.setUsername(username);
-        data1.setEmail(email);
-        data1.setFirstName("Ahmet");
-        assertEquals("Ahmet", userManager.updateUser(data1).getFirstName());
-
-        data1.setUsername("unknown");
-        data1.setFirstName("Ahmet2");
-        exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data1));
-        assertEquals(DataAccessException.class, exception.getCause().getClass());
-
-        exception = assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw12345", data1.getCredential()));
-        assertEquals(ValidationException.class, exception.getCause().getClass());
-
-        data1.setEmail(email);
-        data1.setUsername(user.getUsername());
-        data1.setFirstName("Ahmet3");
-        assertEquals("Ahmet3", userManager.updateUser(data1).getFirstName());
-
-        data1.setEmail("changing");
-        data1.setUsername(user.getUsername());
-        data1.setFirstName("Ahmet4");
-        assertThrows(UserOperationException.class, () -> userManager.updateUser(data1));
-        assertThrows(UserOperationException.class, () -> userManager.changePassword(data1.getEmail(), "hpw1", data1.getCredential()));
+        assert userManager
+                .createUser(null)
+                .getEmail()
+                .equals("emailX");
     }
 
     @Test
-    void test_create_existing_user_unique_fields() {
-        User user1 = userManager.createUser(data1);
-        User user2 = userManager.createUser(data2);
+    void test_update_user_null_validator_picker() {
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.UPDATE))
+                .thenReturn(null);
 
-        assertEquals(2, userDao.find().size());
-
-        data3.setEmail(data2.getEmail());
-
-        UserOperationException exception = assertThrows(UserOperationException.class, () -> userManager.createUser(data3));
-        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
-
-        data4.setEmail(data2.getEmail());
-
-        UserOperationException exception2 = assertThrows(UserOperationException.class, () -> userManager.createUser(data4));
-        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
-
-        data5.setFirstName(data2.getFirstName());
-        data5.setLastName(data2.getLastName());
-        data5.setHashPassword(data2.getHashPassword());
-
-        User updatedUser4 = userManager.createUser(data5);
-        assertEquals(3, userDao.find().size());
-        assertEquals(updatedUser4.getDisplayName(), data2.getFirstName() + " " + data2.getLastName());
+        assertThrows(
+                NullPointerException.class,
+                () -> userManager.updateUser(null));
     }
 
     @Test
-    void test_update_existing_user_unique_fields() {
-        User user1 = userManager.createUser(data1);
-        User user2 = userManager.createUser(data2);
+    void test_update_user_invalid_data() {
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
 
-        assertEquals(2, userDao.find().size());
+        ErrorBag errorBag = new SimpleErrorBag();
+        errorBag.addErrorMessage("errorMessage1X");
 
-        data2.setUsername(user2.getUsername());
-        data3.setUsername(data2.getUsername());
-        data3.setEmail(data1.getEmail());
+        UserValidationResult validationResult = new UserValidationResult(errorBag);
 
-        UserOperationException exception = assertThrows(UserOperationException.class, () -> userManager.updateUser(data3));
-        assertTrue(exception.getCause() instanceof DataAccessException);
-        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
+        Mockito
+                .when(mockValidator.validate(anyObject()))
+                .thenReturn(validationResult);
 
-        data4.setUsername(data2.getUsername());
-        data4.setEmail(data1.getEmail());
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.UPDATE))
+                .thenReturn(mockValidator);
 
-        UserOperationException exception2 = assertThrows(UserOperationException.class, () -> userManager.updateUser(data4));
-        assertTrue(exception.getCause() instanceof DataAccessException);
-        assertEquals(JdbcSQLIntegrityConstraintViolationException.class, exception.getCause().getCause().getClass());
+        ValidationException validationException = assertThrows(
+                ValidationException.class,
+                () -> userManager.updateUser(null));
 
-        data5.setUsername(data2.getUsername());
-        data5.setFirstName(data1.getFirstName());
-        data5.setLastName(data1.getLastName());
-        data5.setHashPassword(data1.getHashPassword());
-
-        User updatedUser5 = userManager.updateUser(data5);
-        assertEquals(2, userDao.find().size());
-        assertEquals(updatedUser5.getUsername(), data2.getUsername());
-        assertEquals(updatedUser5.getDisplayName(), data1.getFirstName() + " " + data1.getLastName());
+        assert validationException.getErrorBag().getErrorMessages().size() == 1;
     }
 
     @Test
-    void test_encrypt_password() {
-        userManager.createUser(data1);
+    void test_update_user_successfully() {
+        MockUser userTobeReturned = new MockUser();
+        userTobeReturned.setEmail("emailX");
 
-        assertEquals("hashed" + data1.getRawPassword(), userDao.findByEmail(data1.getEmail()).getCredential());
+        Mockito
+                .when(userDao.update(anyObject()))
+                .thenReturn(userTobeReturned);
+
+        assert userManager
+                .updateUser(null)
+                .getEmail()
+                .equals("emailX");
     }
 
     @Test
-    void test_change_password() {
-        userManager.createUser(data1);
-        assertEquals("hashed" + data1.getRawPassword(), userDao.findByEmail(data1.getEmail()).getCredential());
-
-        userManager.changePassword(data1.getEmail(), "hpw12345", "xx");
-        assertEquals("hashedxx", userDao.findByEmail(data1.getEmail()).getCredential());
+    void test_change_password_blank_email() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userManager.changePassword("", "", ""));
     }
 
-    private static MutableUserAdapter getModificationData(String email, String firstName, String lastName, String password) {
-        MutableUserAdapter request = new MutableUserAdapter();
+    @Test
+    void test_change_password_null_validator_picker() {
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CHANGE_PASSWORD))
+                .thenReturn(null);
 
-        request.setUsername(email.substring(0, email.indexOf("@")));
-        request.setEmail(email);
-        request.setFirstName(firstName);
-        request.setLastName(lastName);
-        request.setRawPassword(password);
-
-        return request;
+        assertThrows(
+                NullPointerException.class,
+                () -> userManager.changePassword("emailX", "", ""));
     }
 
-    private static boolean hasSameData(User user, MutableUserAdapter data) {
-        if (user == null || data == null) {
-            return false;
-        }
+    @Test
+    void test_change_password_invalid_data() {
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
 
-        return Objects.equals(user.getEmail(), data.getEmail())
-                && Objects.equals(user.getDisplayName(), data.getFirstName() + " " + data.getLastName());
+        ErrorBag errorBag = new SimpleErrorBag();
+        errorBag.addErrorMessage("errorMessage1X");
+
+        UserValidationResult validationResult = new UserValidationResult(errorBag);
+
+        Mockito
+                .when(mockValidator.validate(anyObject()))
+                .thenReturn(validationResult);
+
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CHANGE_PASSWORD))
+                .thenReturn(mockValidator);
+
+        ValidationException validationException = assertThrows(
+                ValidationException.class,
+                () -> userManager.changePassword("emailX", "", ""));
+
+        assert validationException.getErrorBag().getErrorMessages().size() == 1;
     }
 
-    private static boolean hasSameData(User user, User user2) {
-        if (user == null || user2 == null) {
-            return false;
-        }
+    @Test
+    void test_change_password_user_not_found() {
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
+        UserValidationResult validationResult = new UserValidationResult();
 
-        return Objects.equals(user.getUsername(), user2.getUsername())
-                && Objects.equals(user.getEmail(), user2.getEmail())
-                && Objects.equals(user.getDisplayName(), user2.getDisplayName());
+        Mockito
+                .when(mockValidator.validate(anyObject()))
+                .thenReturn(validationResult);
+
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CHANGE_PASSWORD))
+                .thenReturn(mockValidator);
+
+        Mockito
+                .when(userDao.findByEmail(eq(("emailX"))))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                UserNotFoundException.class,
+                () -> userManager.changePassword("emailX", "", ""));
+    }
+
+    @Test
+    void test_change_password_password_not_matches() {
+        UserValidationResult validationResult = new UserValidationResult();
+
+        MockUser userTobeReturned = new MockUser();
+        userTobeReturned.setEmail("emailX");
+
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
+
+        Mockito
+                .when(mockValidator.validate(anyObject()))
+                .thenReturn(validationResult);
+
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CHANGE_PASSWORD))
+                .thenReturn(mockValidator);
+
+        Mockito
+                .when(userDao.findByEmail(eq(("emailX"))))
+                .thenReturn(Optional.of(userTobeReturned));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userManager.changePassword("emailX", "", ""));
+    }
+
+
+    @Test
+    void test_change_password_successfully() {
+        UserValidationResult validationResult = new UserValidationResult();
+
+        MockUser userTobeReturned = new MockUser();
+        userTobeReturned.setEmail("emailX");
+        userTobeReturned.setUsername("usernameX");
+
+        UserValidator mockValidator = Mockito.mock(UserValidator.class);
+
+        Mockito
+                .when(mockValidator.validate(anyObject()))
+                .thenReturn(validationResult);
+
+        Mockito
+                .when(userValidatorPicker.pick(UserOperation.CHANGE_PASSWORD))
+                .thenReturn(mockValidator);
+
+        Mockito
+                .when(userDao.findByEmail(eq(("emailX"))))
+                .thenReturn(Optional.of(userTobeReturned));
+
+        Mockito
+                .when(passwordEncoder.encode(anyString()))
+                .thenReturn("encodedX");
+
+        Mockito
+                .verify(userDao, times(1))
+                .updatePasswordByUsername(eq("usernameX"), "encodedX");
     }
 }

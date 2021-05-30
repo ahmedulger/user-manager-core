@@ -10,20 +10,20 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleErrorCollection implements ErrorCollection {
+public class SimpleErrorBag implements ErrorBag {
 
     private Map<String, String> errors;
     private List<String> errorMessages;
 
-    public SimpleErrorCollection() {
+    public SimpleErrorBag() {
         this(Maps.newHashMap(), Lists.<String>newLinkedList());
     }
 
-    public SimpleErrorCollection(ErrorCollection errorCollection) {
-        this(Maps.newHashMap(errorCollection.getErrors()), Lists.newLinkedList(errorCollection.getErrorMessages()));
+    public SimpleErrorBag(ErrorBag errorBag) {
+        this(Maps.newHashMap(errorBag.getErrors()), Lists.newLinkedList(errorBag.getErrorMessages()));
     }
 
-    private SimpleErrorCollection(final Map<String, String> errors, final List<String> errorMessages) {
+    private SimpleErrorBag(final Map<String, String> errors, final List<String> errorMessages) {
         this.errors = errors;
         this.errorMessages = errorMessages;
     }
@@ -54,7 +54,7 @@ public class SimpleErrorCollection implements ErrorCollection {
     }
 
     @Override
-    public void addErrorCollection(ErrorCollection errors) {
+    public void addErrorCollection(ErrorBag errors) {
         addErrorMessages(errors.getErrorMessages());
         addErrors(errors.getErrors());
     }
@@ -95,7 +95,7 @@ public class SimpleErrorCollection implements ErrorCollection {
             return false;
         }
 
-        SimpleErrorCollection that = (SimpleErrorCollection) o;
+        SimpleErrorBag that = (SimpleErrorBag) o;
 
         if (!errorMessages.equals(that.errorMessages)) {
             return false;

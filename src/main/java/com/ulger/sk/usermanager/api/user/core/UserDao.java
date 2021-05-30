@@ -3,6 +3,7 @@ package com.ulger.sk.usermanager.api.user.core;
 import com.ulger.sk.usermanager.exception.DataAccessException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Data source operations like writing, reading.
@@ -18,7 +19,7 @@ public interface UserDao {
      * @throws DataAccessException
      * @return {@link User}
      */
-    User findByUsername(String username) throws DataAccessException;
+    Optional<User> findByUsername(String username) throws DataAccessException;
 
     /**
      * Searches and returns {@link User} whose email is given email value
@@ -27,7 +28,7 @@ public interface UserDao {
      * @throws DataAccessException
      * @return {@link User}
      */
-    User findByEmail(String email) throws DataAccessException;
+    Optional<User> findByEmail(String email) throws DataAccessException;
 
     /**
      * Searches and returns all {@link User} list

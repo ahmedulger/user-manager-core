@@ -33,7 +33,7 @@ class ValidationHelper {
     }
 
     final void addError(UserField field, String message) {
-        validationResult.getErrorCollection().addError(field.getName(), message);
+        validationResult.getErrorBag().addError(field.getName(), message);
 
         if (logger.isDebugEnabled()) {
             logger.debug("[addError] Field is invalid :: field={}, message={}", field, message);

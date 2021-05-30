@@ -3,7 +3,7 @@ package com.ulger.sk.usermanager.apiresult;
 import java.util.Collection;
 import java.util.Map;
 
-public interface ErrorCollection {
+public interface ErrorBag {
 
     void addError(String field, String message);
 
@@ -15,7 +15,7 @@ public interface ErrorCollection {
 
     Map<String, String> getErrors();
 
-    void addErrorCollection(ErrorCollection errors);
+    void addErrorCollection(ErrorBag errors);
 
     void addErrorMessages(Collection<String> errorMessages);
 
